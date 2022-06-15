@@ -46,7 +46,6 @@ jobs:
       - name: Copy Jar
         run: cp ./small-gift-webservice.zip ./deploy/
 
-
       # S3 Bucket으로 copy
       - name: Deliver to AWS S3
         env:
