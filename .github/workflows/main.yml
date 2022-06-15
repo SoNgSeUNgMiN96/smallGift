@@ -42,8 +42,9 @@ jobs:
 
       # Jar 파일 Copy
       - name: Copy Jar
-        run: zip -r small-gift-webservice *,
-	cp ./small-gift-webservice.zip ./deploy/
+        run: zip -r small-gift-webservice *, 
+      - name: Copy Jar
+        run: cp ./small-gift-webservice.zip ./deploy/
 
 
       # S3 Bucket으로 copy
