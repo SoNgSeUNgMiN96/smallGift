@@ -42,7 +42,7 @@ jobs:
 
       # Jar 파일 Copy
       - name: Copy Jar
-        run: zip -r small-gift-webservice *, 
+        run: zip -r small-gift-webservice *
       - name: Copy Jar
         run: cp ./small-gift-webservice.zip ./deploy/
 
