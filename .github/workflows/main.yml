@@ -56,4 +56,4 @@ jobs:
           aws s3 cp \
           --region ap-northeast-2 \
           --acl private \ 
-	  ./small-gift-webservice.zip s3://small-gift-build/
+	 ./deploy/small-gift-webservice.zip s3://small-gift-build/
