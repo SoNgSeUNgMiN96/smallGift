@@ -2,4 +2,7 @@
 /.gradle/
 /.idea
 /.idea/
-*.properties
+/build/
+/build
+build
+application-real.properties
