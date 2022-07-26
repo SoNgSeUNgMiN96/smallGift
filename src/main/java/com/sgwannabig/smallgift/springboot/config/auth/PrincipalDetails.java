@@ -53,7 +53,7 @@ public class PrincipalDetails implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 
-        authorities.add(()-> member.getRole().name());
+        authorities.add(()-> member.getRole());
 
         return authorities;
     }

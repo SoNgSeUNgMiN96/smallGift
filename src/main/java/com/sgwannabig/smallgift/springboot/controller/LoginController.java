@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sgwannabig.smallgift.springboot.config.auth.PrincipalDetails;
 import com.sgwannabig.smallgift.springboot.config.jwt.JwtProperties;
+import com.sgwannabig.smallgift.springboot.domain.Provider;
 import com.sgwannabig.smallgift.springboot.domain.RefreshToken;
 import com.sgwannabig.smallgift.springboot.domain.Member;
 import com.sgwannabig.smallgift.springboot.domain.Role;
@@ -173,7 +174,8 @@ public class LoginController {
             @ApiResponse(code = 401, message = "이미 존재하는 회원"),
             @ApiResponse(code = 402, message = "비밀번호는영문과 특수문자 숫자를 포함하며 8자 이상이어야 합니다."),
             @ApiResponse(code = 403, message = "이메일 형식을 유지해주세요."),
-            @ApiResponse(code = 405, message = "올바른 요청을 해주세요.")
+            @ApiResponse(code = 405, message = "올바른 요청을 해주세요."),
+            @ApiResponse(code = 406, message = "이미 가입된 이메일입니다.")
     })
     @PostMapping("signup")
     public SignupResponseDto signup(@RequestBody SignupDto signupDto, HttpServletResponse response) {
@@ -190,7 +192,7 @@ public class LoginController {
         Matcher passMatcher = passPattern.matcher(signupDto.getPassword());
 
         Pattern emailPattern = Pattern.compile("^[_a-z0-9-]+(.[_a-z0-9-]+)*@(?:\\w+\\.)+\\w+$");
-        Matcher emailMatcher = emailPattern.matcher(signupDto.getUsername());
+        Matcher emailMatcher = emailPattern.matcher(signupDto.getEmail());
 
         if(isUser.isPresent()){
             response.setStatus(401);
@@ -210,14 +212,26 @@ public class LoginController {
             //return "이메일 형식을 유지해주세요.";
         }
 
+        isUser = Optional.ofNullable(memberRepository.findByEmail(signupDto.getEmail()));
+
+
+        if(isUser.isPresent()){
+            response.setStatus(406);
+            return null;
+            //return "이미 존재하는 이메일입니다.";
+        }
+
         Member member = new Member();
         member.setUsername(signupDto.getUsername());
         member.setPassword(signupDto.getPassword());
         member.setPassword(passwordEncoder.encode(member.getPassword()));
         //없는지 검사하는것도 필요함
         System.out.println(signupDto);
-        member.setRole(signupDto.getRole());
+        System.out.println("name = "+signupDto.getRole().name());
+        System.out.println("value = "+Role.valueOf(signupDto.getRole().name()));
+        member.setRole(signupDto.getRole().name());
         member.setEmail(signupDto.getEmail());
+        member.setProvider(signupDto.getProvider().name());
 
         memberRepository.save(member);
 

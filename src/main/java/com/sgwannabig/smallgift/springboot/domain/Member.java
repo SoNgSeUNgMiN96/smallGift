@@ -22,10 +22,11 @@ public class Member extends BaseTimeEntity{
     @NotNull
     @Column(name = "username", unique = true)
     private String username;
-    private Provider provider;      //enum Provider
+    private String provider;      //enum Provider
     private String password;
     //private String roles;
-    private Role role;
+    private String role;
+    @Column(name = "email", unique = true)
     private String email;
 
 
