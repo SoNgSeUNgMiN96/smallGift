@@ -1,7 +1,7 @@
 package com.sgwannabig.smallgift.springboot.config.auth;
 
-import com.sgwannabig.smallgift.springboot.domain.User;
-import com.sgwannabig.smallgift.springboot.repository.UserRepository;
+import com.sgwannabig.smallgift.springboot.domain.Member;
+import com.sgwannabig.smallgift.springboot.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,14 +12,14 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PrincipalDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         System.out.println("PrincipalDetailsService : 진입");
-        User user = userRepository.findByUsername(username);
+        Member member = memberRepository.findByUsername(username);
 
         // session.setAttribute("loginUser", user);
-        return new PrincipalDetails(user);
+        return new PrincipalDetails(member);
     }
 }
