@@ -8,14 +8,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sgwannabig.smallgift.springboot.config.auth.PrincipalDetails;
 import com.sgwannabig.smallgift.springboot.config.jwt.JwtProperties;
+import com.sgwannabig.smallgift.springboot.domain.Provider;
 import com.sgwannabig.smallgift.springboot.domain.RefreshToken;
-import com.sgwannabig.smallgift.springboot.domain.User;
+import com.sgwannabig.smallgift.springboot.domain.Member;
+import com.sgwannabig.smallgift.springboot.domain.Role;
 import com.sgwannabig.smallgift.springboot.dto.AccessTokenDto;
 import com.sgwannabig.smallgift.springboot.dto.JwtDto;
 import com.sgwannabig.smallgift.springboot.dto.SignupDto;
 import com.sgwannabig.smallgift.springboot.dto.SignupResponseDto;
 import com.sgwannabig.smallgift.springboot.repository.RefreshTokenRepository;
-import com.sgwannabig.smallgift.springboot.repository.UserRepository;
+import com.sgwannabig.smallgift.springboot.repository.MemberRepository;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,15 +38,15 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class LoginController {
 
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
     PasswordEncoder passwordEncoder;
     ObjectMapper om = new ObjectMapper();
 
     @Autowired
-    public LoginController(UserRepository userRepository, RefreshTokenRepository refreshTokenRepository,  PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
+    public LoginController(MemberRepository memberRepository, RefreshTokenRepository refreshTokenRepository, PasswordEncoder passwordEncoder) {
+        this.memberRepository = memberRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -133,13 +135,13 @@ public class LoginController {
                 username = JWT.require(Algorithm.HMAC512(JwtProperties.SECRET)).build().verify(refreshToken.getRefreshToken())
                         .getClaim("username").asString();
 
-                User user = userRepository.findByUsername(username);
+                Member member = memberRepository.findByUsername(username);
 
                 String jwtAccessToken = JWT.create()
-                        .withSubject(user.getUsername())
+                        .withSubject(member.getUsername())
                         .withExpiresAt(new Date(System.currentTimeMillis()+JwtProperties.EXPIRATION_TIME))
-                        .withClaim("id", user.getId())
-                        .withClaim("username", user.getUsername())
+                        .withClaim("id", member.getId())
+                        .withClaim("username", member.getUsername())
                         .sign(Algorithm.HMAC512(JwtProperties.SECRET));
 
                 AccessTokenDto accessTokenDto = new AccessTokenDto(JwtProperties.TOKEN_PREFIX+jwtAccessToken);
@@ -156,9 +158,11 @@ public class LoginController {
 
     @ApiOperation(value = "signup", notes = "signup API입니다.")
     @ApiImplicitParams({
-            @ApiImplicitParam(name="username", value ="사용자 ID(email)", required = true),
+            @ApiImplicitParam(name="username", value ="사용자 ID", required = true),
             @ApiImplicitParam(name="password", value ="비밀번호", required = true),
-            @ApiImplicitParam(name="tags", value ="태그들", required = true),
+            @ApiImplicitParam(name="email", value ="사용자 Email", required = true),
+            @ApiImplicitParam(name="Provider", value ="회원가입 유형(NORMAL, KAKAO, NAVER)", required = true),
+            @ApiImplicitParam(name="Role", value ="권한(ROLE_USER, ROLE_MANAGER)", required = true),
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "{\n" +
@@ -170,7 +174,8 @@ public class LoginController {
             @ApiResponse(code = 401, message = "이미 존재하는 회원"),
             @ApiResponse(code = 402, message = "비밀번호는영문과 특수문자 숫자를 포함하며 8자 이상이어야 합니다."),
             @ApiResponse(code = 403, message = "이메일 형식을 유지해주세요."),
-            @ApiResponse(code = 405, message = "올바른 요청을 해주세요.")
+            @ApiResponse(code = 405, message = "올바른 요청을 해주세요."),
+            @ApiResponse(code = 406, message = "이미 가입된 이메일입니다.")
     })
     @PostMapping("signup")
     public SignupResponseDto signup(@RequestBody SignupDto signupDto, HttpServletResponse response) {
@@ -181,13 +186,13 @@ public class LoginController {
             //return "값이 없습니다.";
         }
 
-        Optional<User> isUser = Optional.ofNullable(userRepository.findByUsername(signupDto.getUsername()));
+        Optional<Member> isUser = Optional.ofNullable(memberRepository.findByUsername(signupDto.getUsername()));
 
         Pattern passPattern = Pattern.compile("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*\\W).{8,20}$");
         Matcher passMatcher = passPattern.matcher(signupDto.getPassword());
 
         Pattern emailPattern = Pattern.compile("^[_a-z0-9-]+(.[_a-z0-9-]+)*@(?:\\w+\\.)+\\w+$");
-        Matcher emailMatcher = emailPattern.matcher(signupDto.getUsername());
+        Matcher emailMatcher = emailPattern.matcher(signupDto.getEmail());
 
         if(isUser.isPresent()){
             response.setStatus(401);
@@ -207,18 +212,32 @@ public class LoginController {
             //return "이메일 형식을 유지해주세요.";
         }
 
-        User user = new User();
-        user.setUsername(signupDto.getUsername());
-        user.setPassword(signupDto.getPassword());
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRoles("ROLE_USER");
+        isUser = Optional.ofNullable(memberRepository.findByEmail(signupDto.getEmail()));
 
 
-        userRepository.save(user);
+        if(isUser.isPresent()){
+            response.setStatus(406);
+            return null;
+            //return "이미 존재하는 이메일입니다.";
+        }
+
+        Member member = new Member();
+        member.setUsername(signupDto.getUsername());
+        member.setPassword(signupDto.getPassword());
+        member.setPassword(passwordEncoder.encode(member.getPassword()));
+        //없는지 검사하는것도 필요함
+        System.out.println(signupDto);
+        System.out.println("name = "+signupDto.getRole().name());
+        System.out.println("value = "+Role.valueOf(signupDto.getRole().name()));
+        member.setRole(signupDto.getRole().name());
+        member.setEmail(signupDto.getEmail());
+        member.setProvider(signupDto.getProvider().name());
+
+        memberRepository.save(member);
 
         SignupResponseDto signupSignupResponseDto = new SignupResponseDto();
-        signupSignupResponseDto.setId(user.getId());
-        signupSignupResponseDto.setUsername(user.getUsername());
+        signupSignupResponseDto.setId(member.getId());
+        signupSignupResponseDto.setUsername(member.getUsername());
         return signupSignupResponseDto;
     }
 }

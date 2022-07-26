@@ -1,5 +1,7 @@
 package com.sgwannabig.smallgift.springboot.dto;
 
+import com.sgwannabig.smallgift.springboot.domain.Provider;
+import com.sgwannabig.smallgift.springboot.domain.Role;
 import lombok.Data;
 
 import java.util.List;
@@ -8,5 +10,7 @@ import java.util.List;
 public class SignupDto {
     private String username;
     private String password;
-    private List<String> tags;
+    private String email;
+    private Provider provider;
+    private Role Role;
 }
