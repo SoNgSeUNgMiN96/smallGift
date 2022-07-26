@@ -99,7 +99,7 @@ public class LoginController {
 
 
     @ApiOperation(value = "reissueAccessToken", notes = "reissueAccessToken API입니다.\n" +
-            "header에  key : token value : {\"jwtAccessToken\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzZXVuZ21pbjIiLCJpZCI6NCwiZXhwIjoxNjU2NTI0NjE2LCJ1c2VybmFtZSI6InNldW5nbWluMiJ9.ciIX0cXD3ahJIvB4f2GE60n0qRPaE2HQfwqr7nBtBoKiXKCSacaZh-2wKJo_9gXK9KtKUUAtIRh6vtfe0AapuQ\", \"jwtRefreshToken\":\"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzZXVuZ21pbjIiLCJpZCI6NCwiZXhwIjoxNjU3NzM0MjA2LCJ1c2VybmFtZSI6InNldW5nbWluMiJ9.7K5zMxSlaUb1flbKCLYfuY83QUxnIF5LpjxJSuwKtBwXfvP2z6eN9_dmv3YUuDzEnRJFVT_moXjpagSG39oSiw\"} ")
+            "header에  key : token value : {\"jwtAccessToken\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzZXVuZ21pbjIiLCJpZCI6NCwiZXhwIjoxNjU2NTI0NjE2LCJ1c2VybmFtZSI6InNldW5nbWluMiJ9.ciIX0cXD3ahJIvB4f2GE60n0qRPaE2HQfwqr7nBtBoKiXKCSacaZh-2wKJo_9gXK9KtKUUAtIRh6vtfe0AapuQ\",\n \"jwtRefreshToken\":\"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzZXVuZ21pbjIiLCJpZCI6NCwiZXhwIjoxNjU3NzM0MjA2LCJ1c2VybmF\ntZSI6InNldW5nbWluMiJ9.7K5zMxSlaUb1flbKCLYfuY83QUxnIF5LpjxJSuwKtBwXfvP2z6eN9_dmv3YUuDzEnRJFVT_moXjpagSG39oSiw\"} ")
     @ApiImplicitParams({
             @ApiImplicitParam(name="jwtAccessToken", value ="만료된 AccessToken", required = true),
             @ApiImplicitParam(name="jwtRefreshToken", value ="RefreshToken", required = true),
