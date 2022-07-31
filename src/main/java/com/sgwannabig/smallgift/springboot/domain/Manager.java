@@ -16,11 +16,11 @@ public class Manager {
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "managerId")
+    @Column(name = "MANAGER_ID")
     private long id;
 
     @NotNull
-    @Column(name = "managerTel")
+    @Column(name = "MANAGER_TEL")
     private String tel;
 
     @NotNull
