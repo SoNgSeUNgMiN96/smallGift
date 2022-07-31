@@ -41,6 +41,9 @@ dependencies {
     //implementation 'io.springfox:springfox-boot-starter:3.0.0'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    //Oauth
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 }
 
 tasks.named('test') {

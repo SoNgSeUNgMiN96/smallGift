@@ -27,6 +27,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private MemberRepository memberRepository;
 
+
     //@Autowired
     //private CorsConfig corsConfig;
 

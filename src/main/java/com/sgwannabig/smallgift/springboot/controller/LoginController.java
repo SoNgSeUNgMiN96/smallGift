@@ -8,21 +8,20 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sgwannabig.smallgift.springboot.config.auth.PrincipalDetails;
 import com.sgwannabig.smallgift.springboot.config.jwt.JwtProperties;
-import com.sgwannabig.smallgift.springboot.domain.Provider;
-import com.sgwannabig.smallgift.springboot.domain.RefreshToken;
-import com.sgwannabig.smallgift.springboot.domain.Member;
-import com.sgwannabig.smallgift.springboot.domain.Role;
+import com.sgwannabig.smallgift.springboot.domain.*;
 import com.sgwannabig.smallgift.springboot.dto.AccessTokenDto;
 import com.sgwannabig.smallgift.springboot.dto.JwtDto;
 import com.sgwannabig.smallgift.springboot.dto.SignupDto;
 import com.sgwannabig.smallgift.springboot.dto.SignupResponseDto;
 import com.sgwannabig.smallgift.springboot.repository.RefreshTokenRepository;
 import com.sgwannabig.smallgift.springboot.repository.MemberRepository;
+import com.sgwannabig.smallgift.springboot.service.UserService;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +40,9 @@ public class LoginController {
     private final MemberRepository memberRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
+    @Autowired
+    private UserService userService;
+
     PasswordEncoder passwordEncoder;
     ObjectMapper om = new ObjectMapper();
 
@@ -49,6 +51,42 @@ public class LoginController {
         this.memberRepository = memberRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.passwordEncoder = passwordEncoder;
+    }
+
+
+    @GetMapping("/oauth/kakao/token")
+    public String getKakaoLogin(@RequestParam("code") String code) throws Exception{
+
+        // 넘어온 인가 코드를 통해 access_token 발급
+        OauthToken oauthToken = userService.getAccessToken(code);
+        //(1)
+        // 발급 받은 accessToken 으로 카카오 회원 정보 DB 저장
+        Member member = userService.saveUser(oauthToken.getAccess_token());
+
+        String jwtAccessToken = JWT.create()
+                .withSubject(member.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
+                .withClaim("id", member.getId())
+                .withClaim("username", member.getUsername())
+                .sign(Algorithm.HMAC512(JwtProperties.SECRET));
+
+        String jwtRefreshToken = JWT.create()
+                .withSubject(member.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.REFRESH_EXPIRATION_TIME))  //14일로 추가.
+                .withClaim("id", member.getId())
+                .withClaim("username", member.getUsername())
+                .sign(Algorithm.HMAC512(JwtProperties.SECRET));
+
+        JwtDto jwtDto = new JwtDto().builder()
+                .jwtAccessToken(JwtProperties.TOKEN_PREFIX + jwtAccessToken)
+                .jwtRefreshToken(JwtProperties.TOKEN_PREFIX + jwtRefreshToken)
+                .build();
+
+        refreshTokenRepository.save(new RefreshToken(jwtRefreshToken));
+
+        String tokensJson = om.writeValueAsString(jwtDto);
+        //response.getWriter().write(tokensJson);
+        return tokensJson;
     }
 
 
@@ -171,6 +209,7 @@ public class LoginController {
                     "}"),
             @ApiResponse(code = 201, message = "존재하지 않는 태그이름을 포함합니다. 해당 태그를 제외하고 회원가입이 성공하였습니다."),
             @ApiResponse(code = 500, message = "서버에러"),
+            @ApiResponse(code = 400, message = "Provider 또는 Role이 지정된값을 벗어남."),
             @ApiResponse(code = 401, message = "이미 존재하는 회원"),
             @ApiResponse(code = 402, message = "비밀번호는영문과 특수문자 숫자를 포함하며 8자 이상이어야 합니다."),
             @ApiResponse(code = 403, message = "이메일 형식을 유지해주세요."),
@@ -227,8 +266,6 @@ public class LoginController {
         member.setPassword(passwordEncoder.encode(member.getPassword()));
         //없는지 검사하는것도 필요함
         System.out.println(signupDto);
-        System.out.println("name = "+signupDto.getRole().name());
-        System.out.println("value = "+Role.valueOf(signupDto.getRole().name()));
         member.setRole(signupDto.getRole().name());
         member.setEmail(signupDto.getEmail());
         member.setProvider(signupDto.getProvider().name());
