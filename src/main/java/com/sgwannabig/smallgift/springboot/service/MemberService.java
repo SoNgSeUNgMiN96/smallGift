@@ -8,7 +8,6 @@ import com.sgwannabig.smallgift.springboot.repository.MemberRepository;
 import com.sgwannabig.smallgift.springboot.service.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.internal.bytebuddy.utility.RandomString;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
