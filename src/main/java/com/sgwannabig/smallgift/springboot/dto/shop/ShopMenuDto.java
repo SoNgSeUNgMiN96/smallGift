@@ -18,4 +18,14 @@ public class ShopMenuDto {
 
     @ApiModelProperty(example = "13000")
     int price;
+
+    @ApiModelProperty(example = "11000")
+    int discountPrice;
+
+    @ApiModelProperty(example = "84")
+    int discountRate;
+
+    public void setDiscountRate(){
+        discountRate = price/discountPrice;
+    }
 }

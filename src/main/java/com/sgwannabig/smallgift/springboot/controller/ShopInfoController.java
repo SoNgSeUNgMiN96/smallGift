@@ -63,8 +63,7 @@ public class ShopInfoController {
     public List<ShopMenuDto> shopDetails(@PathVariable("shopId") String shopId){
 
         List<ShopMenuDto> menuByShop = new ArrayList<>();
+
         return menuByShop;
     }
-
-
 }
