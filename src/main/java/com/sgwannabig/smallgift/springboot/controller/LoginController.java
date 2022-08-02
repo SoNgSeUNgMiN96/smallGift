@@ -67,6 +67,18 @@ public class LoginController {
     }
 
 
+
+    @ApiOperation(value = "oauth/kakao/token", notes = "kakao login API입니다.")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="username", value ="사용자 ID(email)", required = true),
+            @ApiImplicitParam(name="password", value ="비밀번호", required = true),
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "성공"),
+            @ApiResponse(code = 500, message = "서버에러"),
+            @ApiResponse(code = 401, message = "토큰 시간이 만료됨."),
+            @ApiResponse(code = 402, message = "비밀번호는영문과 특수문자 숫자를 포함하며 8자 이상이어야 합니다.")
+    })
     @GetMapping("/oauth/kakao/token")
     public String getKakaoLogin(@RequestParam("code") String code) throws Exception{
 

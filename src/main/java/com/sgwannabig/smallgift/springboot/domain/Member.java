@@ -25,7 +25,6 @@ public class Member extends BaseTimeEntity{
     private String username;
     private String provider;      //enum Provider
     private String password;
-
     private String role;
     @Column(name = "email", unique = true)
     private String email;
