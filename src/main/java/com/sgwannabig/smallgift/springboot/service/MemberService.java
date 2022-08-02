@@ -79,7 +79,7 @@ public class MemberService {
         if (member.getEmail().equals(email) == false)
             return false;
         // 임시 비밀번호를 만들어 암호화한 다음 DB에 업데이트 후 이메일로 임시 비밀번호 발송
-        String newPassword = RandomString.hashOf(20);
+        String newPassword = "flwkejf";
         String newEncodedPassword = passwordEncoder.encode(newPassword);
         memberRepository.save(member);
         String text = new StringBuilder("<h1>임시 비밀번호</h1>")
