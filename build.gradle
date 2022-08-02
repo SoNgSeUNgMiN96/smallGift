@@ -52,6 +52,12 @@ dependencies {
     
 }
 
+configurations {
+    all {                
+        exclude group: 'org.apache.logging.log4j', module: 'log4j-to-slf4j'
+    }
+}
+
 tasks.named('test') {
     useJUnitPlatform()
 }
