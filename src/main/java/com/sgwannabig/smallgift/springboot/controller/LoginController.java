@@ -9,44 +9,55 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sgwannabig.smallgift.springboot.config.auth.PrincipalDetails;
 import com.sgwannabig.smallgift.springboot.config.jwt.JwtProperties;
 import com.sgwannabig.smallgift.springboot.domain.RefreshToken;
-import com.sgwannabig.smallgift.springboot.domain.User;
+import com.sgwannabig.smallgift.springboot.domain.Member;
 import com.sgwannabig.smallgift.springboot.dto.AccessTokenDto;
 import com.sgwannabig.smallgift.springboot.dto.JwtDto;
 import com.sgwannabig.smallgift.springboot.dto.SignupDto;
 import com.sgwannabig.smallgift.springboot.dto.SignupResponseDto;
+import com.sgwannabig.smallgift.springboot.dto.signup.MemberLoginRequestDto;
+import com.sgwannabig.smallgift.springboot.dto.signup.MemberLoginResponseDto;
 import com.sgwannabig.smallgift.springboot.repository.RefreshTokenRepository;
-import com.sgwannabig.smallgift.springboot.repository.UserRepository;
+import com.sgwannabig.smallgift.springboot.repository.MemberRepository;
+import com.sgwannabig.smallgift.springboot.service.MemberService;
+import com.sgwannabig.smallgift.springboot.service.ResponseService;
+import com.sgwannabig.smallgift.springboot.service.result.SingleResult;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 @Component
 @RestController
-@RequestMapping("api/v1")
+@RequestMapping("api/user")
 @RequiredArgsConstructor
 public class LoginController {
 
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final ResponseService responseService;
+    private final MemberService memberService;
 
     PasswordEncoder passwordEncoder;
     ObjectMapper om = new ObjectMapper();
 
     @Autowired
-    public LoginController(UserRepository userRepository, RefreshTokenRepository refreshTokenRepository,  PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
+    public LoginController(MemberRepository memberRepository, RefreshTokenRepository refreshTokenRepository,
+                           PasswordEncoder passwordEncoder, ResponseService responseService, MemberService memberService) {
+        this.memberRepository = memberRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.passwordEncoder = passwordEncoder;
+        this.responseService = responseService;
+        this.memberService = memberService;
     }
 
 
@@ -67,9 +78,8 @@ public class LoginController {
     // Tip : JWT를 사용하면 UserDetailsService를 호출하지 않기 때문에 @AuthenticationPrincipal 사용 불가능.
     // 왜냐하면 @AuthenticationPrincipal은 UserDetailsService에서 리턴될 때 만들어지기 때문이다.
 
-
     // 유저 혹은 매니저 혹은 어드민이 접근 가능
-    @GetMapping("user")
+    @GetMapping("")
     public String user(Authentication authentication) {
         PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
         System.out.println("principal : "+principal.getUser().getId());
@@ -78,28 +88,197 @@ public class LoginController {
         return "<h1>user  user</h1>";
     }
 
-
-
-    @ApiOperation(value = "login", notes = "login API입니다.")
+    @ApiOperation(value = "signup", notes = "signup API입니다.")
     @ApiImplicitParams({
-            @ApiImplicitParam(name="username", value ="사용자 ID(email)", required = true),
+            @ApiImplicitParam(name="username", value ="사용자 ID", required = true),
             @ApiImplicitParam(name="password", value ="비밀번호", required = true),
+            @ApiImplicitParam(name="email", value ="사용자 Email", required = true),
+            @ApiImplicitParam(name="Provider", value ="회원가입 유형(NORMAL, KAKAO, NAVER)", required = true),
+            @ApiImplicitParam(name="Role", value ="권한(ROLE_USER, ROLE_MANAGER)", required = true),
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "{\n" +
+                    "    \"id\": 34,\n" +
+                    "    \"username\": \"testId5@naver.com\"\n" +
+                    "}"),
+            @ApiResponse(code = 201, message = "존재하지 않는 태그이름을 포함합니다. 해당 태그를 제외하고 회원가입이 성공하였습니다."),
+            @ApiResponse(code = 500, message = "서버에러"),
+            @ApiResponse(code = 401, message = "이미 존재하는 회원"),
+            @ApiResponse(code = 402, message = "비밀번호는영문과 특수문자 숫자를 포함하며 8자 이상이어야 합니다."),
+            @ApiResponse(code = 403, message = "이메일 형식을 유지해주세요."),
+            @ApiResponse(code = 405, message = "올바른 요청을 해주세요."),
+            @ApiResponse(code = 406, message = "이미 가입된 이메일입니다.")
+    })
+    @PostMapping("signup")
+    public SignupResponseDto signup(@RequestBody SignupDto signupDto, HttpServletResponse response) {
+
+        if(signupDto==null){
+            response.setStatus(405);
+            return null;
+            //return "값이 없습니다.";
+        }
+
+        Optional<Member> isUser = Optional.ofNullable(memberRepository.findByUsername(signupDto.getUsername()));
+
+        Pattern passPattern = Pattern.compile("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*\\W).{8,20}$");
+        Matcher passMatcher = passPattern.matcher(signupDto.getPassword());
+
+        Pattern emailPattern = Pattern.compile("^[_a-z0-9-]+(.[_a-z0-9-]+)*@(?:\\w+\\.)+\\w+$");
+        Matcher emailMatcher = emailPattern.matcher(signupDto.getEmail());
+
+        if(isUser.isPresent()){
+            response.setStatus(401);
+            return null;
+            //return "이미 존재하는 회원명입니다.";
+        }
+
+        if(!passMatcher.find()){
+            response.setStatus(402);
+            return null;
+            //return "비밀번호는 영문과 특수문자 숫자를 포함하며 8자 이상이어야 합니다.";
+        }
+
+        if(!emailMatcher.find()){
+            response.setStatus(403);
+            return null;
+            //return "이메일 형식을 유지해주세요.";
+        }
+
+        isUser = Optional.ofNullable(memberRepository.findByEmail(signupDto.getEmail()));
+
+
+        if(isUser.isPresent()){
+            response.setStatus(406);
+            return null;
+            //return "이미 존재하는 이메일입니다.";
+        }
+
+        Member member = new Member();
+        member.setUsername(signupDto.getUsername());
+        member.setPassword(signupDto.getPassword());
+        member.setPassword(passwordEncoder.encode(member.getPassword()));
+        //없는지 검사하는것도 필요함
+        System.out.println(signupDto);
+        member.setRole(signupDto.getRole().name());
+        member.setEmail(signupDto.getEmail());
+        member.setProvider(signupDto.getProvider().name());
+
+        memberRepository.save(member);
+
+        SignupResponseDto signupSignupResponseDto = new SignupResponseDto();
+        signupSignupResponseDto.setId(member.getId());
+        signupSignupResponseDto.setUsername(member.getUsername());
+        return signupSignupResponseDto;
+    }
+
+    @ApiOperation(value = "로컬 로그인", notes = "로컬을 통해 로그인을 진행한다.") // 구현 O
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "username", value = "아이디", required = true),
+            @ApiImplicitParam(name = "password", value = "패스워드", required = true)
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "성공"),
             @ApiResponse(code = 500, message = "서버에러"),
-            @ApiResponse(code = 401, message = "토큰 시간이 만료됨."),
             @ApiResponse(code = 402, message = "비밀번호는영문과 특수문자 숫자를 포함하며 8자 이상이어야 합니다.")
     })
-    @PostMapping("/login")
-    public String login(@RequestBody HttpServletRequest request){
-        return "스웨거 명세를 위한 api";
+    @GetMapping("/login")
+    public SingleResult<MemberLoginResponseDto> loginMember(@RequestBody MemberLoginRequestDto requestDto) {
+        MemberLoginResponseDto responseDto = memberService.loginMember(requestDto);
+        return responseService.getSingleResult(responseDto);
+    }
+
+    @ApiOperation(value = "아이디 중복체크", notes = "아이디 중복 확인을 진행한다.")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "username", value = "관리자 아이디", required = true)
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "아이디 중복 확인 성공"),
+            @ApiResponse(code = 500, message = "서버 에러"),
+            @ApiResponse(code = 402, message = "중복된 아이디 입니다.")
+    })
+    @PostMapping("/{username}/exists")
+    public String checkIdDuplicate(@PathVariable String username) {
+        if (memberService.checkUsernameDuplicate(username)) {
+            return "이미 사용중인 아이디입니다.";
+        } else {
+            return "사용할 수 있는 아이디입니다.";
+        }
+        //return ResponseEntity.ok(managerService.checkUsernameDuplicate(username));
     }
 
 
+    @ApiOperation(value = "이메일 중복체크", notes = "이메일 중복 확인을 진행한다.")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "email", value = "관리자 이메일", required = true)
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "이메일 중복 확인 성공"),
+            @ApiResponse(code = 500, message = "서버 에러"),
+            @ApiResponse(code = 402, message = "중복된 아이디 입니다.")
+    })
+    @PostMapping("/{email}/exists")
+    public ResponseEntity<Boolean> checkEmailDuplicate(@PathVariable String email) throws Exception{
+        return ResponseEntity.ok(memberService.checkEmailDuplicate(email));
+    }
+
+    @ApiOperation(value = "아이디 찾기", notes = "아이디 찾기를 진행한다.")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "email", value = "관리자 이메일", required = true)
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "아이디 찾기 성공"),
+            @ApiResponse(code = 500, message = "서버 에러"),
+            @ApiResponse(code = 402, message = "비밀번호는 영문과 특수문자 숫자를 포함하며 8자 이상이어야 합니다.")
+    })
+    @GetMapping("/find/id")
+    public ResponseEntity<String> findId(String email) {
+        String username = memberService.findId(email);
+        if(username == null) return ResponseEntity.status(HttpStatus.CONFLICT).body("아이디를 찾지 못했습니다.");
+        return ResponseEntity.ok(username);
+    }
+
+    @ApiOperation(value = "비밀번호 찾기", notes = "비밀번호 찾기를 진행한다.")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "관리자 아이디", required = true),
+            @ApiImplicitParam(name = "email", value = "관리자 이메일", required = true)
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "비밀번호 찾기 성공"),
+            @ApiResponse(code = 500, message = "서버 에러"),
+            @ApiResponse(code = 402, message = "이메일 형식이 올바르지 않습니다.")
+    })
+    @PostMapping("/find/password")
+    public String findPwd(String username, String email, RedirectAttributes ra) {
+        // 비밀번호를 찾으면 로그인 창으로 이동해 "임시 비밀번호를 이메일로 전송했습니다."라고 출력하려고 한다.
+        // 비밀번호를 못 찾으면 GET /find/password로 이동해서 "비밀번호를 찾지 못했습니다"라고 출력하려고 한다.
+        Boolean result = memberService.resetPassword(username, email);
+        if(result == true) {
+            ra.addFlashAttribute("msg", "임시 비밀번호를 이메일로 전송했습니다.");
+            return "임시 비밀번호를 이메일로 전송했습니다.";
+        } else {
+            ra.addFlashAttribute("msg", "비밀번호를 찾지 못했습니다.");
+            return "비밀번호를 찾지 못했습니다.";
+        }
+    }
+
+    @ApiOperation(value = "회원탈퇴", notes = "회원탈퇴를 진행한다.") // 구현 O
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "회원 탈퇴 성공"),
+            @ApiResponse(code = 500, message = "서버에러"),
+            @ApiResponse(code = 401, message = "회원 탈퇴에 실패했습니다."),
+    })
+    @DeleteMapping("/delete/{memberNum}")
+    public String resign(@PathVariable Long memberNum) {
+        Optional<Member> member = memberRepository.findById(memberNum);
+        member.ifPresent(selectMember -> {
+            memberRepository.delete(selectMember);
+        });
+        if(member != null) return "회원탈퇴 성공";
+        else return "회원탈퇴에 실패하였습니다.";
+    }
 
     @ApiOperation(value = "reissueAccessToken", notes = "reissueAccessToken API입니다.\n" +
-            "header에  key : token value : {\"jwtAccessToken\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzZXVuZ21pbjIiLCJpZCI6NCwiZXhwIjoxNjU2NTI0NjE2LCJ1c2VybmFtZSI6InNldW5nbWluMiJ9.ciIX0cXD3ahJIvB4f2GE60n0qRPaE2HQfwqr7nBtBoKiXKCSacaZh-2wKJo_9gXK9KtKUUAtIRh6vtfe0AapuQ\", \"jwtRefreshToken\":\"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzZXVuZ21pbjIiLCJpZCI6NCwiZXhwIjoxNjU3NzM0MjA2LCJ1c2VybmFtZSI6InNldW5nbWluMiJ9.7K5zMxSlaUb1flbKCLYfuY83QUxnIF5LpjxJSuwKtBwXfvP2z6eN9_dmv3YUuDzEnRJFVT_moXjpagSG39oSiw\"} ")
+            "header에  key : token value : {\"jwtAccessToken\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzZXVuZ21pbjIiLCJpZCI6NCwiZXhwIjoxNjU2NTI0NjE2LCJ1c2VybmFtZSI6InNldW5nbWluMiJ9.ciIX0cXD3ahJIvB4f2GE60n0qRPaE2HQfwqr7nBtBoKiXKCSacaZh-2wKJo_9gXK9KtKUUAtIRh6vtfe0AapuQ\",\n \"jwtRefreshToken\":\"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzZXVuZ21pbjIiLCJpZCI6NCwiZXhwIjoxNjU3NzM0MjA2LCJ1c2VybmF\ntZSI6InNldW5nbWluMiJ9.7K5zMxSlaUb1flbKCLYfuY83QUxnIF5LpjxJSuwKtBwXfvP2z6eN9_dmv3YUuDzEnRJFVT_moXjpagSG39oSiw\"} ")
     @ApiImplicitParams({
             @ApiImplicitParam(name="jwtAccessToken", value ="만료된 AccessToken", required = true),
             @ApiImplicitParam(name="jwtRefreshToken", value ="RefreshToken", required = true),
@@ -126,20 +305,20 @@ public class LoginController {
 
         } catch (JWTVerificationException e) {
             System.out.println(e.getMessage());
-            if(e.getMessage().contains("expired")) {    //만료가 되었으니 재발급.
+            if(e.getMessage().contains("expired")) {
                 RefreshToken refreshToken = refreshTokenRepository.findByRefreshToken(   jwtDto.getJwtRefreshToken().replace(JwtProperties.TOKEN_PREFIX, ""))  ;
                 System.out.println(refreshToken.getRefreshToken()+"  "+refreshToken.getCreateDate());
 
                 username = JWT.require(Algorithm.HMAC512(JwtProperties.SECRET)).build().verify(refreshToken.getRefreshToken())
                         .getClaim("username").asString();
 
-                User user = userRepository.findByUsername(username);
+                Member member = memberRepository.findByUsername(username);
 
                 String jwtAccessToken = JWT.create()
-                        .withSubject(user.getUsername())
+                        .withSubject(member.getUsername())
                         .withExpiresAt(new Date(System.currentTimeMillis()+JwtProperties.EXPIRATION_TIME))
-                        .withClaim("id", user.getId())
-                        .withClaim("username", user.getUsername())
+                        .withClaim("id", member.getId())
+                        .withClaim("username", member.getUsername())
                         .sign(Algorithm.HMAC512(JwtProperties.SECRET));
 
                 AccessTokenDto accessTokenDto = new AccessTokenDto(JwtProperties.TOKEN_PREFIX+jwtAccessToken);
@@ -152,73 +331,5 @@ public class LoginController {
         response.setStatus(401);
         return null;
         //return "Access token not Expire";
-    }
-
-    @ApiOperation(value = "signup", notes = "signup API입니다.")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name="username", value ="사용자 ID(email)", required = true),
-            @ApiImplicitParam(name="password", value ="비밀번호", required = true),
-            @ApiImplicitParam(name="tags", value ="태그들", required = true),
-    })
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "{\n" +
-                    "    \"id\": 34,\n" +
-                    "    \"username\": \"testId5@naver.com\"\n" +
-                    "}"),
-            @ApiResponse(code = 201, message = "존재하지 않는 태그이름을 포함합니다. 해당 태그를 제외하고 회원가입이 성공하였습니다."),
-            @ApiResponse(code = 500, message = "서버에러"),
-            @ApiResponse(code = 401, message = "이미 존재하는 회원"),
-            @ApiResponse(code = 402, message = "비밀번호는영문과 특수문자 숫자를 포함하며 8자 이상이어야 합니다."),
-            @ApiResponse(code = 403, message = "이메일 형식을 유지해주세요."),
-            @ApiResponse(code = 405, message = "올바른 요청을 해주세요.")
-    })
-    @PostMapping("signup")
-    public SignupResponseDto signup(@RequestBody SignupDto signupDto, HttpServletResponse response) {
-
-        if(signupDto==null){
-            response.setStatus(405);
-            return null;
-            //return "값이 없습니다.";
-        }
-
-        Optional<User> isUser = Optional.ofNullable(userRepository.findByUsername(signupDto.getUsername()));
-
-        Pattern passPattern = Pattern.compile("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*\\W).{8,20}$");
-        Matcher passMatcher = passPattern.matcher(signupDto.getPassword());
-
-        Pattern emailPattern = Pattern.compile("^[_a-z0-9-]+(.[_a-z0-9-]+)*@(?:\\w+\\.)+\\w+$");
-        Matcher emailMatcher = emailPattern.matcher(signupDto.getUsername());
-
-        if(isUser.isPresent()){
-            response.setStatus(401);
-            return null;
-            //return "이미 존재하는 회원명입니다.";
-        }
-
-        if(!passMatcher.find()){
-            response.setStatus(402);
-            return null;
-            //return "비밀번호는 영문과 특수문자 숫자를 포함하며 8자 이상이어야 합니다.";
-        }
-
-        if(!emailMatcher.find()){
-            response.setStatus(403);
-            return null;
-            //return "이메일 형식을 유지해주세요.";
-        }
-
-        User user = new User();
-        user.setUsername(signupDto.getUsername());
-        user.setPassword(signupDto.getPassword());
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRoles("ROLE_USER");
-
-
-        userRepository.save(user);
-
-        SignupResponseDto signupSignupResponseDto = new SignupResponseDto();
-        signupSignupResponseDto.setId(user.getId());
-        signupSignupResponseDto.setUsername(user.getUsername());
-        return signupSignupResponseDto;
     }
 }
