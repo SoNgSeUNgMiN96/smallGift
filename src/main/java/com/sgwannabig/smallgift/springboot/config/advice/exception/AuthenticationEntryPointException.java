@@ -1,4 +1,4 @@
-package com.sgwannabig.smallgift.springboot.controller.exception;
+package com.sgwannabig.smallgift.springboot.config.advice.exception;
 
 public class AuthenticationEntryPointException extends RuntimeException {
     public AuthenticationEntryPointException() {
