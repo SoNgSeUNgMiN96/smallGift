@@ -1,25 +1,37 @@
 package com.sgwannabig.smallgift.springboot.service.jwt;
 
-import com.sgwannabig.smallgift.springboot.config.auth.PrincipalDetails;
-import com.sgwannabig.smallgift.springboot.config.auth.PrincipalDetailsService;
 import com.sgwannabig.smallgift.springboot.config.jwt.JwtProperties;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
+
+@Setter
 @Component
 @RequiredArgsConstructor
 public class JwtTokenProvider {
+
     private String secretKey = JwtProperties.SECRET;
-    private final PrincipalDetailsService principalDetailsService;
+
+    private long tokenValidTime = JwtProperties.EXPIRATION_TIME;
+    private long refreshTokenValidTime = JwtProperties.REFRESH_EXPIRATION_TIME;
+
+    private final UserDetailsService userDetailsService;
+
     @PostConstruct
     protected void init() {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
@@ -50,12 +62,12 @@ public class JwtTokenProvider {
 
     // 토큰으로 인증 객체 얻어오기
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails = principalDetailsService.loadUserByUsername(getUsername(token));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(getMemberEmail(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
-    public String getUsername(String token) {
-        try{
+    public String getMemberEmail(String token) {
+        try {
             return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
         } catch(ExpiredJwtException e) {
             return e.getClaims().getSubject();
@@ -66,11 +78,11 @@ public class JwtTokenProvider {
         return req.getHeader("X-AUTH-TOKEN");
     }
 
-    public boolean validateTokenExceptExpiration(String token) {
+    public boolean validateTokenExpiration(String token) {
         try {
-            Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
-            return !claims.getBody().getExpiration().before(new Date());
-        } catch(Exception e) {
+            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
             return false;
         }
     }
