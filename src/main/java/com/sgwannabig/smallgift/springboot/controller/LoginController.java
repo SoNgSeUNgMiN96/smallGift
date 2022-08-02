@@ -10,6 +10,7 @@ import com.sgwannabig.smallgift.springboot.config.auth.PrincipalDetails;
 import com.sgwannabig.smallgift.springboot.config.jwt.JwtProperties;
 import com.sgwannabig.smallgift.springboot.domain.RefreshToken;
 import com.sgwannabig.smallgift.springboot.domain.Member;
+import com.sgwannabig.smallgift.springboot.domain.*;
 import com.sgwannabig.smallgift.springboot.dto.AccessTokenDto;
 import com.sgwannabig.smallgift.springboot.dto.JwtDto;
 import com.sgwannabig.smallgift.springboot.dto.SignupDto;
@@ -21,6 +22,7 @@ import com.sgwannabig.smallgift.springboot.repository.MemberRepository;
 import com.sgwannabig.smallgift.springboot.service.MemberService;
 import com.sgwannabig.smallgift.springboot.service.ResponseService;
 import com.sgwannabig.smallgift.springboot.service.result.SingleResult;
+import com.sgwannabig.smallgift.springboot.service.UserService;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -47,6 +50,9 @@ public class LoginController {
     private final ResponseService responseService;
     private final MemberService memberService;
 
+    @Autowired
+    private UserService userService;
+
     PasswordEncoder passwordEncoder;
     ObjectMapper om = new ObjectMapper();
 
@@ -58,6 +64,42 @@ public class LoginController {
         this.passwordEncoder = passwordEncoder;
         this.responseService = responseService;
         this.memberService = memberService;
+    }
+
+
+    @GetMapping("/oauth/kakao/token")
+    public String getKakaoLogin(@RequestParam("code") String code) throws Exception{
+
+        // 넘어온 인가 코드를 통해 access_token 발급
+        OauthToken oauthToken = userService.getAccessToken(code);
+        //(1)
+        // 발급 받은 accessToken 으로 카카오 회원 정보 DB 저장
+        Member member = userService.saveUser(oauthToken.getAccess_token());
+
+        String jwtAccessToken = JWT.create()
+                .withSubject(member.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
+                .withClaim("id", member.getId())
+                .withClaim("username", member.getUsername())
+                .sign(Algorithm.HMAC512(JwtProperties.SECRET));
+
+        String jwtRefreshToken = JWT.create()
+                .withSubject(member.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.REFRESH_EXPIRATION_TIME))  //14일로 추가.
+                .withClaim("id", member.getId())
+                .withClaim("username", member.getUsername())
+                .sign(Algorithm.HMAC512(JwtProperties.SECRET));
+
+        JwtDto jwtDto = new JwtDto().builder()
+                .jwtAccessToken(JwtProperties.TOKEN_PREFIX + jwtAccessToken)
+                .jwtRefreshToken(JwtProperties.TOKEN_PREFIX + jwtRefreshToken)
+                .build();
+
+        refreshTokenRepository.save(new RefreshToken(jwtRefreshToken));
+
+        String tokensJson = om.writeValueAsString(jwtDto);
+        //response.getWriter().write(tokensJson);
+        return tokensJson;
     }
 
 
@@ -333,3 +375,4 @@ public class LoginController {
         //return "Access token not Expire";
     }
 }
+

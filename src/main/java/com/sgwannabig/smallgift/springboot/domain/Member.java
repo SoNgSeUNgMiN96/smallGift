@@ -1,15 +1,19 @@
 package com.sgwannabig.smallgift.springboot.domain;
 
+
 import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 
+
+
+
 @Data
 @Entity
 @EqualsAndHashCode(callSuper=false)
-public class Member {
+public class Member extends BaseTimeEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

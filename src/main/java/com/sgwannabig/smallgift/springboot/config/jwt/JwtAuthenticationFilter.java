@@ -8,7 +8,7 @@ import com.sgwannabig.smallgift.springboot.domain.RefreshToken;
 import com.sgwannabig.smallgift.springboot.dto.JwtDto;
 import com.sgwannabig.smallgift.springboot.dto.LoginRequestDto;
 import com.sgwannabig.smallgift.springboot.repository.RefreshTokenRepository;
-import com.sgwannabig.smallgift.springboot.repository.UserRepository;
+import com.sgwannabig.smallgift.springboot.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,7 +35,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Autowired
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
 
 
     private final ObjectMapper om = new ObjectMapper();
@@ -76,7 +76,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         // Tip: 인증 프로바이더의 디폴트 암호화 방식은 BCryptPasswordEncoder
         // 결론은 인증 프로바이더에게 알려줄 필요가 없음.
 
-        if (userRepository.findByUsername(loginRequestDto.getUsername()) == null) {
+        if (memberRepository.findByUsername(loginRequestDto.getUsername()) == null) {
             //response.getWriter().write("아이디가 없음");
         }
 

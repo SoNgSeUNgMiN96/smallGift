@@ -3,7 +3,7 @@ package com.sgwannabig.smallgift.springboot.config;
 import com.sgwannabig.smallgift.springboot.config.jwt.JwtAuthenticationFilter;
 import com.sgwannabig.smallgift.springboot.config.jwt.JwtAuthorizationFilter;
 import com.sgwannabig.smallgift.springboot.repository.RefreshTokenRepository;
-import com.sgwannabig.smallgift.springboot.repository.UserRepository;
+import com.sgwannabig.smallgift.springboot.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +25,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
     @Autowired
-    private UserRepository userRepository;
+    private MemberRepository memberRepository;
+
 
     //@Autowired
     //private CorsConfig corsConfig;
@@ -37,7 +38,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager(), refreshTokenRepository, userRepository);
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager(), refreshTokenRepository, memberRepository);
         jwtAuthenticationFilter.setFilterProcessesUrl("/api/v1/login"); //login 필터 강제 변경.
 
         http
@@ -48,7 +49,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin().disable()
                 .httpBasic().disable()
                 .addFilter(jwtAuthenticationFilter)
-                .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository))
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(), memberRepository))
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS,"**").permitAll()
                 .antMatchers("/api/v1/reissueAccessToken")

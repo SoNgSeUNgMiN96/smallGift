@@ -24,10 +24,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up JDK 1.8
+      - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
-          java-version: 1.8
+          java-version: 11
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -36,19 +36,53 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build
 
-      # 전송할 파일을 담을 디렉토리 생성
+      - name: mkdir before-deploy
+        run: mkdir -p before-deploy/
+           # 전송할 파일을 담을 디렉토리 생성
+           
       - name: Make Directory for deliver
         run: mkdir -p deploy
 
+        
+        
+              
+      - name: copy before-deploy
+        run: cp scripts/*.sh before-deploy/
+        
+
+      - name: copy before-deploy
+        run: cp appspec.yml before-deploy/
+      
+      - name: copy before-deploy
+        run: cp build/libs/*.jar before-deploy/
+      
+      - name: make zip
+        run: zip -r -qq -j ./back.zip ./before-deploy/
+        
+        
+
       # Jar 파일 Copy
+        
       - name: Copy Jar
-        run: zip -r small-gift-webservice *
-      - name: Copy Jar
-        run: cp ./small-gift-webservice.zip ./deploy/
+        run: cp ./back.zip ./deploy/
 
       # S3 Bucket으로 copy
       - name: Deliver to AWS S3
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-        run: aws s3 cp --region ap-northeast-2 --acl private ./deploy/small-gift-webservice.zip s3://small-gift-build/
+        run: aws s3 cp --region ap-northeast-2 --acl private ./deploy/back.zip s3://small-gift-build/
+
+
+       # Deploy
+      - name: Deploy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+        run: |
+          aws deploy create-deployment \
+          --application-name smallGift \
+          --deployment-group-name smallGift \
+          --file-exists-behavior OVERWRITE \
+          --s3-location bucket=small-gift-build,bundleType=zip,key=back.zip \
+          --region ap-northeast-2

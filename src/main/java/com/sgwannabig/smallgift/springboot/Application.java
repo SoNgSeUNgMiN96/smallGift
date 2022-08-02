@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing
 @EnableCaching
 @SpringBootApplication
-public class Application {
+public class Application {      //testing
     public static void main(String[] args){
         SpringApplication.run(Application.class,args);
     }
