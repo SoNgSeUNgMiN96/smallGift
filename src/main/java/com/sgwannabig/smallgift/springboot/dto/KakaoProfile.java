@@ -1,4 +1,4 @@
-package com.sgwannabig.smallgift.springboot.domain;
+package com.sgwannabig.smallgift.springboot.dto;
 
 
 import lombok.Data;

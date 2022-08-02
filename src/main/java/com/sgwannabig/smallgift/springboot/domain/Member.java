@@ -17,7 +17,7 @@ public class Member extends BaseTimeEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "USER_ID")
+    @Column(name = "Member_Id")
     private long id;
 
     @NotNull
