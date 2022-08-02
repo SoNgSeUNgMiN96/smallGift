@@ -8,8 +8,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class PrincipalDetailsService implements UserDetailsService {
 
     private final MemberRepository memberRepository;

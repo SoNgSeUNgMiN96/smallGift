@@ -1,10 +1,9 @@
 package com.sgwannabig.smallgift.springboot.dto;
 
+
 import com.sgwannabig.smallgift.springboot.domain.Provider;
 import com.sgwannabig.smallgift.springboot.domain.Role;
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 public class SignupDto {
