@@ -2,34 +2,38 @@ package com.sgwannabig.smallgift.springboot.domain;
 
 import com.sun.istack.NotNull;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @Data
 @Entity
 public class Manager {
 
     @Id
-    @NotNull
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "MANAGER_ID")
-    private long id;
+    // @OneToMany(mappedBy = "{shop}", "{settlement_datails}", fecth = FetchType.LAZY)
+    private Long id;
 
     @NotNull
-    @Column(name = "MANAGER_TEL")
-    private String tel;
+    private String username;
 
     @NotNull
-    @Column(name = "managerBusinessName")
-    private String BusinessName;
+    private String businessName;
+    @NotNull
+    private String address;
+    @NotNull
+    private String businessTel;
+    @NotNull
+    private String businessType;
+
+    @NotNull
     @Column(name = "managerSettlementBank")
-    private String SettlementBank;
+    private String settlementBank;
+
+    @NotNull
     @Column(name = "managerSettlementAccount")
-    private String SettlementAccount;
+    private String settlementAccount;
 
-
+    private String imagePath;
 }
