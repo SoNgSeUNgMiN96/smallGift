@@ -41,7 +41,7 @@ public class SalesManagementService {
             manager.setBusinessType(managerDto.getBusinessType());
             manager.setSettlementBank(managerDto.getBankName());
             manager.setSettlementAccount(managerDto.getBankAccount());
-            manager.setImagePath(managerDto.getManagerImage());
+            //manager.setImagePath(managerDto.getManagerImage());
             managerRepository.save(manager);
         }
 
@@ -61,7 +61,7 @@ public class SalesManagementService {
             product.setStatus(productRequestDto.getStatus());
             product.setStartDate(productRequestDto.getStart_dt());
             product.setEndDate(productRequestDto.getEnd_dt());
-            product.setMenuImagePath(productRequestDto.getMenuImage());
+            //product.setMenuImagePath(productRequestDto.getMenuImage());
             productRepository.save(product);
         }
         return product;
@@ -107,7 +107,7 @@ public class SalesManagementService {
         product.setProductStock(updateProductRequestDto.getProductPrice());
         product.setStartDate(updateProductRequestDto.getStart_dt());
         product.setEndDate(updateProductRequestDto.getEnd_dt());
-        product.setMenuImagePath(updateProductRequestDto.getMenuImagePath());
+        //product.setMenuImagePath(updateProductRequestDto.getMenuImagePath());
         productRepository.save(product);
         return product;
     }
