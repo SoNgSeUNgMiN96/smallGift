@@ -8,37 +8,40 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sgwannabig.smallgift.springboot.config.auth.PrincipalDetails;
 import com.sgwannabig.smallgift.springboot.config.jwt.JwtProperties;
-import com.sgwannabig.smallgift.springboot.domain.RefreshToken;
 import com.sgwannabig.smallgift.springboot.domain.Member;
-import com.sgwannabig.smallgift.springboot.domain.*;
+import com.sgwannabig.smallgift.springboot.domain.OauthToken;
+import com.sgwannabig.smallgift.springboot.domain.RefreshToken;
 import com.sgwannabig.smallgift.springboot.dto.AccessTokenDto;
 import com.sgwannabig.smallgift.springboot.dto.JwtDto;
 import com.sgwannabig.smallgift.springboot.dto.SignupDto;
 import com.sgwannabig.smallgift.springboot.dto.SignupResponseDto;
 import com.sgwannabig.smallgift.springboot.dto.signup.MemberLoginRequestDto;
 import com.sgwannabig.smallgift.springboot.dto.signup.MemberLoginResponseDto;
-import com.sgwannabig.smallgift.springboot.repository.RefreshTokenRepository;
 import com.sgwannabig.smallgift.springboot.repository.MemberRepository;
+import com.sgwannabig.smallgift.springboot.repository.RefreshTokenRepository;
 import com.sgwannabig.smallgift.springboot.service.MemberService;
 import com.sgwannabig.smallgift.springboot.service.ResponseService;
-import com.sgwannabig.smallgift.springboot.service.result.SingleResult;
 import com.sgwannabig.smallgift.springboot.service.UserService;
+import com.sgwannabig.smallgift.springboot.service.result.SingleResult;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.Date;
+import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 @Component
 @RestController
 @RequestMapping("api/user")
@@ -243,7 +246,7 @@ public class LoginController {
 
     @ApiOperation(value = "아이디 중복체크", notes = "아이디 중복 확인을 진행한다.")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "username", value = "관리자 아이디", required = true)
+            @ApiImplicitParam(name = "username", value = "사용자 아이디", required = true)
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "아이디 중복 확인 성공"),
@@ -263,7 +266,7 @@ public class LoginController {
 
     @ApiOperation(value = "이메일 중복체크", notes = "이메일 중복 확인을 진행한다.")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "email", value = "관리자 이메일", required = true)
+            @ApiImplicitParam(name = "email", value = "사용자 이메일", required = true)
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "이메일 중복 확인 성공"),
@@ -277,15 +280,15 @@ public class LoginController {
 
     @ApiOperation(value = "아이디 찾기", notes = "아이디 찾기를 진행한다.")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "email", value = "관리자 이메일", required = true)
+            @ApiImplicitParam(name = "email", value = "사용자 이메일", required = true)
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "아이디 찾기 성공"),
             @ApiResponse(code = 500, message = "서버 에러"),
-            @ApiResponse(code = 402, message = "비밀번호는 영문과 특수문자 숫자를 포함하며 8자 이상이어야 합니다.")
+            @ApiResponse(code = 402, message = "올바르지 않은 이메일 형식입니다.")
     })
-    @GetMapping("/find/id")
-    public ResponseEntity<String> findId(String email) {
+    @PostMapping("/find/id")
+    public ResponseEntity<String> findId(@RequestBody String email) {
         String username = memberService.findId(email);
         if(username == null) return ResponseEntity.status(HttpStatus.CONFLICT).body("아이디를 찾지 못했습니다.");
         return ResponseEntity.ok(username);
@@ -293,8 +296,8 @@ public class LoginController {
 
     @ApiOperation(value = "비밀번호 찾기", notes = "비밀번호 찾기를 진행한다.")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "관리자 아이디", required = true),
-            @ApiImplicitParam(name = "email", value = "관리자 이메일", required = true)
+            @ApiImplicitParam(name = "id", value = "사용자 아이디", required = true),
+            @ApiImplicitParam(name = "email", value = "사용자 이메일", required = true)
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "비밀번호 찾기 성공"),
@@ -302,10 +305,10 @@ public class LoginController {
             @ApiResponse(code = 402, message = "이메일 형식이 올바르지 않습니다.")
     })
     @PostMapping("/find/password")
-    public String findPwd(String username, String email, RedirectAttributes ra) {
+    public String findPwd(@RequestBody MemberLoginRequestDto memberLoginRequestDto, RedirectAttributes ra) {
         // 비밀번호를 찾으면 로그인 창으로 이동해 "임시 비밀번호를 이메일로 전송했습니다."라고 출력하려고 한다.
         // 비밀번호를 못 찾으면 GET /find/password로 이동해서 "비밀번호를 찾지 못했습니다"라고 출력하려고 한다.
-        Boolean result = memberService.resetPassword(username, email);
+        Boolean result = memberService.resetPassword(memberLoginRequestDto.getUsername(), memberLoginRequestDto.getEmail());
         if(result == true) {
             ra.addFlashAttribute("msg", "임시 비밀번호를 이메일로 전송했습니다.");
             return "임시 비밀번호를 이메일로 전송했습니다.";
@@ -315,15 +318,35 @@ public class LoginController {
         }
     }
 
+    @ApiOperation(value = "비밀번호 변경", notes = "비밀번호를 변경한다.")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "사용자 아이디", required = true),
+            @ApiImplicitParam(name = "password", value = "사용자 패스워드", required = true),
+            @ApiImplicitParam(name = "newPassword", value = "새로운 비밀번호", required = true),
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "비밀번호 변경 완료"),
+            @ApiResponse(code = 500, message = "서버 에러"),
+            @ApiResponse(code = 402, message = "비밀번호는 영문과 특수문자 숫자를 포함하며 8자 이상이어야 합니다.")
+    })
+    @PostMapping("/change")
+    public String changePassword(@RequestBody MemberLoginRequestDto memberLoginRequestDto, @RequestParam("password") String newPassword) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        Member findMember = memberService.findMemberByUsername(memberLoginRequestDto.getUsername());
+        findMember.setPassword(newPassword);
+        memberService.changePassword(findMember.getUsername(), passwordEncoder.encode(newPassword));
+        return "비밀번호 변경 완료";
+    }
+
     @ApiOperation(value = "회원탈퇴", notes = "회원탈퇴를 진행한다.") // 구현 O
     @ApiResponses({
             @ApiResponse(code = 200, message = "회원 탈퇴 성공"),
             @ApiResponse(code = 500, message = "서버에러"),
             @ApiResponse(code = 401, message = "회원 탈퇴에 실패했습니다."),
     })
-    @DeleteMapping("/delete/{memberNum}")
-    public String resign(@PathVariable Long memberNum) {
-        Optional<Member> member = memberRepository.findById(memberNum);
+    @DeleteMapping("/delete/{memberId}")
+    public String resign(@PathVariable Long memberId) {
+        Optional<Member> member = memberRepository.findById(memberId);
         member.ifPresent(selectMember -> {
             memberRepository.delete(selectMember);
         });
