@@ -20,6 +20,9 @@ public class Member extends BaseTimeEntity{
     @Column(name = "Member_Id")
     private long id;
 
+    //@One(mappedBy = "member")
+    //private User user;
+
     @NotNull
     @Column(name = "username", unique = true)
     private String username;

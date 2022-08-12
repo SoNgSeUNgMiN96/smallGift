@@ -6,15 +6,17 @@ import com.sgwannabig.smallgift.springboot.dto.KakaoProfile;
 import com.sgwannabig.smallgift.springboot.domain.Member;
 import com.sgwannabig.smallgift.springboot.domain.OauthToken;
 import com.sgwannabig.smallgift.springboot.repository.MemberRepository;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.Map;
 
 @Service
 public class UserService {
@@ -23,7 +25,10 @@ public class UserService {
     @Autowired
     private MemberRepository memberRepository;
 
-    public OauthToken getAccessToken(String code) {
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    public OauthToken getKakaoAccessToken(String code) {
 
         //(2)
         RestTemplate rt = new RestTemplate();
@@ -32,11 +37,13 @@ public class UserService {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
+        System.out.println("code = "+code);
+
         //(4)
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
-        params.add("client_id", "{클라이언트 앱 키}");
-        params.add("redirect_uri", "http://localhost:3000/oauth");
+        params.add("client_id", "a865c4442f6a8a5ad97d0b11c0d1e379");
+        params.add("redirect_uri", "http://localhost:3000/auth/kakao/callback");
         params.add("code", code);
         //params.add("client_secret", "{시크릿 키}"); // 생략 가능!
 
@@ -51,6 +58,8 @@ public class UserService {
                 kakaoTokenRequest,
                 String.class
         );
+
+        System.out.println("현재 kakaoToken Response"+accessTokenResponse.toString());
 
         //(7)
         ObjectMapper objectMapper = new ObjectMapper();
@@ -77,6 +86,7 @@ public class UserService {
             member = new Member();
             member.setUsername("kakao_"+profile.getId());
             member.setEmail(profile.getKakao_account().getEmail());
+            member.setProvider("KAKAO");
             member.setRole("ROLE_USER");
             memberRepository.save(member);
         }
@@ -119,5 +129,41 @@ public class UserService {
 
         return kakaoProfile;
     }
+
+    public Member getNaverUserInfo(String accessToken){
+
+        //사용자 정보 요청하기
+        WebClient webClient = WebClient.builder()
+                .baseUrl("https://openapi.naver.com")
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .build();
+
+        //결과값
+        JSONObject response = webClient.get()
+                .uri( uriBuilder -> uriBuilder
+                        .path("/v1/nid/me")
+                        .build())
+                .header("Authorization", "Bearer"+accessToken)
+                .retrieve().bodyToMono(JSONObject.class).block();
+
+        Map<String, Object> res = (Map<String, Object>) response.get("response");
+
+        String id = (String) res.get("id");
+        String email = (String) res.get("email");
+
+        Member member = memberRepository.findByEmail(email);
+
+        //(3)
+        if(member == null) {
+            member = new Member();
+            member.setUsername("naver_"+id);
+            member.setEmail(email);
+            member.setProvider("NAVER");
+            member.setRole("ROLE_USER");
+            memberRepository.save(member);
+        }
+        return member;
+    }
+
 
 }
