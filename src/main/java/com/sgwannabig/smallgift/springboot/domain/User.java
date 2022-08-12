@@ -15,8 +15,10 @@ public class User extends BaseTimeEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "User_Id")
+    @Column(name = "user_Id")
     private long id;
+
+    private long memberId;
 
     String userPhone;
     boolean userPolicyAgree;
@@ -27,7 +29,7 @@ public class User extends BaseTimeEntity{
     String userArea;
 
 
-    @OneToMany(mappedBy = "user")      //시청목록 연결관계
+    @OneToMany(mappedBy = "user")      //유저의 검색어 목부
     private List<UserKeyword> userKeywords = new ArrayList<UserKeyword>();
 
 }

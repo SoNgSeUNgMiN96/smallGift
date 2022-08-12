@@ -17,6 +17,7 @@ import com.sgwannabig.smallgift.springboot.dto.SignupDto;
 import com.sgwannabig.smallgift.springboot.dto.SignupResponseDto;
 import com.sgwannabig.smallgift.springboot.dto.signup.MemberLoginRequestDto;
 import com.sgwannabig.smallgift.springboot.dto.signup.MemberLoginResponseDto;
+import com.sgwannabig.smallgift.springboot.dto.signup.MemberSocialLoginResponseDto;
 import com.sgwannabig.smallgift.springboot.repository.MemberRepository;
 import com.sgwannabig.smallgift.springboot.repository.RefreshTokenRepository;
 import com.sgwannabig.smallgift.springboot.service.MemberService;
@@ -25,14 +26,18 @@ import com.sgwannabig.smallgift.springboot.service.UserService;
 import com.sgwannabig.smallgift.springboot.service.result.SingleResult;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletResponse;
@@ -73,20 +78,17 @@ public class LoginController {
 
     @ApiOperation(value = "oauth/kakao/token", notes = "kakao login API입니다.")
     @ApiImplicitParams({
-            @ApiImplicitParam(name="username", value ="사용자 ID(email)", required = true),
-            @ApiImplicitParam(name="password", value ="비밀번호", required = true),
+            @ApiImplicitParam(name="code", value ="카카오에서 발급받은 코드", required = true),
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "성공"),
             @ApiResponse(code = 500, message = "서버에러"),
-            @ApiResponse(code = 401, message = "토큰 시간이 만료됨."),
-            @ApiResponse(code = 402, message = "비밀번호는영문과 특수문자 숫자를 포함하며 8자 이상이어야 합니다.")
     })
     @GetMapping("/oauth/kakao/token")
-    public String getKakaoLogin(@RequestParam("code") String code) throws Exception{
+    public SingleResult<MemberSocialLoginResponseDto> getKakaoLogin(@RequestParam("code") String code) throws Exception{
 
         // 넘어온 인가 코드를 통해 access_token 발급
-        OauthToken oauthToken = userService.getAccessToken(code);
+        OauthToken oauthToken = userService.getKakaoAccessToken(code);
         //(1)
         // 발급 받은 accessToken 으로 카카오 회원 정보 DB 저장
         Member member = userService.saveUser(oauthToken.getAccess_token());
@@ -105,16 +107,72 @@ public class LoginController {
                 .withClaim("username", member.getUsername())
                 .sign(Algorithm.HMAC512(JwtProperties.SECRET));
 
-        JwtDto jwtDto = new JwtDto().builder()
-                .jwtAccessToken(JwtProperties.TOKEN_PREFIX + jwtAccessToken)
-                .jwtRefreshToken(JwtProperties.TOKEN_PREFIX + jwtRefreshToken)
-                .build();
 
         refreshTokenRepository.save(new RefreshToken(jwtRefreshToken));
 
-        String tokensJson = om.writeValueAsString(jwtDto);
-        //response.getWriter().write(tokensJson);
-        return tokensJson;
+        MemberSocialLoginResponseDto memberSocialLoginResponseDto = new MemberSocialLoginResponseDto(member.getId(), JwtProperties.TOKEN_PREFIX + jwtAccessToken, JwtProperties.TOKEN_PREFIX + jwtRefreshToken);
+
+        return responseService.getSingleResult(memberSocialLoginResponseDto);
+    }
+
+
+    @ApiOperation(value = "oauth/naver/token", notes = "naver login API입니다.")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="code", value ="네이버 발급받은 코드", required = true),
+            @ApiImplicitParam(name="state", value ="네이버 에 보낸 state", required = true)
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "성공"),
+            @ApiResponse(code = 500, message = "서버에러"),
+    })
+    @GetMapping("/oauth/naver/token")
+    public SingleResult<MemberSocialLoginResponseDto> getNaverLogin(@RequestParam("code") String code) throws Exception{
+
+        // 넘어온 인가 코드를 통해 access_token 발급
+        WebClient webClient = WebClient.builder()
+                .baseUrl("https://nid.naver.com")
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .build();
+
+
+        JSONObject response = webClient.post()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/oauth2.0/token")
+                        //비밀번호 변수화하기
+                        //네이버는 잠정 연기입니다.
+                        .queryParam("client_id","")
+                        .queryParam("client_secret","")
+                        .queryParam("grant_type","authorization_code")
+                        .queryParam("state","abc")
+                        .queryParam("code",code)
+                        .build())
+                .retrieve().bodyToMono(JSONObject.class).block();
+
+        String token = (String) response.get("access_token");
+
+        //(1)
+        // 발급 받은 accessToken 으로 카카오 회원 정보 DB 저장
+        Member member = userService.getNaverUserInfo(token);
+
+        String jwtAccessToken = JWT.create()
+                .withSubject(member.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
+                .withClaim("id", member.getId())
+                .withClaim("username", member.getUsername())
+                .sign(Algorithm.HMAC512(JwtProperties.SECRET));
+
+        String jwtRefreshToken = JWT.create()
+                .withSubject(member.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.REFRESH_EXPIRATION_TIME))  //14일로 추가.
+                .withClaim("id", member.getId())
+                .withClaim("username", member.getUsername())
+                .sign(Algorithm.HMAC512(JwtProperties.SECRET));
+
+        refreshTokenRepository.save(new RefreshToken(jwtRefreshToken));
+
+        MemberSocialLoginResponseDto memberSocialLoginResponseDto = new MemberSocialLoginResponseDto(member.getId(), JwtProperties.TOKEN_PREFIX + jwtAccessToken, JwtProperties.TOKEN_PREFIX + jwtRefreshToken);
+
+        return responseService.getSingleResult(memberSocialLoginResponseDto);
     }
 
 
@@ -167,7 +225,7 @@ public class LoginController {
             @ApiResponse(code = 406, message = "이미 가입된 이메일입니다.")
     })
     @PostMapping("signup")
-    public SignupResponseDto signup(@RequestBody SignupDto signupDto, HttpServletResponse response) {
+    public SingleResult<SignupResponseDto> signup(@RequestBody SignupDto signupDto, HttpServletResponse response) {
 
         if(signupDto==null){
             response.setStatus(405);
@@ -225,7 +283,8 @@ public class LoginController {
         SignupResponseDto signupSignupResponseDto = new SignupResponseDto();
         signupSignupResponseDto.setId(member.getId());
         signupSignupResponseDto.setUsername(member.getUsername());
-        return signupSignupResponseDto;
+
+        return responseService.getSingleResult(signupSignupResponseDto);
     }
 
     @ApiOperation(value = "로컬 로그인", notes = "로컬을 통해 로그인을 진행한다.") // 구현 O
