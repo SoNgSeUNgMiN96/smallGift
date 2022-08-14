@@ -13,7 +13,7 @@ public class UserKeyword extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "USERKEYWORD_ID")
-    private long userkeywordId;
+    private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID")

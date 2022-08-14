@@ -9,11 +9,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserLocateDto {
-
-    @ApiModelProperty(example = "21")
+public class UserkeywordDto {
+    @ApiModelProperty(example = "12")
     long memberId;
-
-    @ApiModelProperty(example = "경기도 광주시 오포읍")
-    String locate;
+    @ApiModelProperty(example = "아이스 아메리카노")
+    String keyword;
 }

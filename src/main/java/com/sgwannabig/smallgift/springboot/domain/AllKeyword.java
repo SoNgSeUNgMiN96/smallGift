@@ -14,10 +14,10 @@ public class AllKeyword extends BaseTimeEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "allKeywordId")
-    private long allKeywordId;
+    @Column(name = "allKeyword_id")
+    private long id;
 
     String keyword;
 
-    long count;
+    int count;
 }
