@@ -1,5 +1,6 @@
 package com.sgwannabig.smallgift.springboot.domain;
 
+
 import com.sun.istack.NotNull;
 import lombok.Data;
 
@@ -35,5 +36,6 @@ public class Manager {
     @Column(name = "managerSettlementAccount")
     private String settlementAccount;
 
-    private String imagePath;
+//    private UploadFile managerAttachFile;
+//    private UploadFile salesAttachFile;
 }

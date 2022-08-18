@@ -7,29 +7,24 @@ import javax.persistence.*;
 
 @Data
 @Entity
-public class Product {
+public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "PRODUCT_ID")
+    @Column(name = "REVIEW_ID")
     private Long id;
 
     @NotNull
-    private String category;
+    private Long shopId;
 
     @NotNull
-    private String productName;
-    @NotNull
-    private int productPrice;
-    @NotNull
-    private long productStock;
-    @NotNull
-    private int status;
+    private Long managerId;
 
     @NotNull
-    private String startDate;
-
+    private String reviewTitle;
     @NotNull
-    private String endDate;
+    private String reviewContents;
+    @NotNull
+    private String reviewDate;
 
 //    private UploadFile imageFile;
 }

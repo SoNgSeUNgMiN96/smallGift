@@ -2,6 +2,7 @@ package com.sgwannabig.smallgift.springboot.dto.sales;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class ProductRequestDto {
@@ -32,6 +33,7 @@ public class ProductRequestDto {
     @ApiModelProperty(value = "20230802")
     private String end_dt;
 
-    @ApiModelProperty(value = "/test/menu.jpg")
-    private String menuImage;
+    @ApiModelProperty(value = "/test/storeFood.jpg")
+    private MultipartFile imageFile;
+
 }
