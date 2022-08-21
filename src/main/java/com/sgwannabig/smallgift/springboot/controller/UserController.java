@@ -61,9 +61,9 @@ public class UserController {
             @ApiResponse(code = 500, message = "서버에러"),
     })
     @GetMapping("/locate")
-    public ResponseEntity<String> getUserLocate(@RequestParam long memberId) {
+    public ResponseEntity<String> getUserLocate(@RequestParam String memberId) {
 
-        Optional<Member> member = memberRepository.findById(memberId);
+        Optional<Member> member = memberRepository.findById(Long.parseLong(memberId));
 
         if (!member.isPresent()) {       //멤버 아이디 자체가 없는경우 ? 에러
             return ResponseEntity.status(HttpStatus.CONFLICT).body("userId를 찾기 못했습니다");
