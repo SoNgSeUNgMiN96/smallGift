@@ -61,16 +61,17 @@ public class UserController {
             @ApiResponse(code = 500, message = "서버에러"),
     })
     @GetMapping("/locate")
-    public ResponseEntity<String> getUserLocate(@RequestParam String memberId) {
+    public ResponseEntity<String> getUserLocate(@RequestParam long memberId) {
 
-        Optional<Member> member = memberRepository.findById(Long.parseLong(memberId));
+
+        Optional<Member> member = memberRepository.findById(memberId);
 
         if (!member.isPresent()) {       //멤버 아이디 자체가 없는경우 ? 에러
             return ResponseEntity.status(HttpStatus.CONFLICT).body("userId를 찾기 못했습니다");
         }
 
         //이부분  findByMemberId 로 수정해줘야함. <- 로지 검증 및 테스팅 필요.
-        User orinUser = userRepository.findByMemberId(String.valueOf(memberId));
+        User orinUser = userRepository.findByMemberId(memberId);
         User user;
 
         if (orinUser != null) {       //유저가 이미 있다면, 기존 유저에서 업데이트
@@ -106,7 +107,7 @@ public class UserController {
         }
 
         //이부분  findByMemberId 로 수정해줘야함. <- 로지 검증 및 테스팅 필요.
-        User orinUser = userRepository.findByMemberId(String.valueOf(userLocateDto.getMemberId()));
+        User orinUser = userRepository.findByMemberId(userLocateDto.getMemberId());
         User user;
 
         if (orinUser != null) {       //유저가 이미 있다면, 기존 유저에서 업데이트
@@ -116,7 +117,7 @@ public class UserController {
             user.setMemberId(member.get().getId()); //memberId 매치
         }
 
-        user.setUserArea(user.getUserArea());
+        user.setUserArea(userLocateDto.getLocate());
         userRepository.save(user);
 
         return ResponseEntity.ok("success");
@@ -149,7 +150,7 @@ public class UserController {
         }
 
         //이부분  findByMemberId 로 수정해줘야함. <- 로지 검증 및 테스팅 필요.
-        User orinUser = userRepository.findByMemberId(String.valueOf(userInfoDto.getMemberId()));
+        User orinUser = userRepository.findByMemberId(userInfoDto.getMemberId());
         User user;
 
         if (orinUser != null) {       //유저가 이미 있다면, 기존 유저에서 업데이트
@@ -196,7 +197,7 @@ public class UserController {
         }
 
         //이부분  findByMemberId 로 수정해줘야함. <- 로지 검증 및 테스팅 필요.
-        User orinUser = userRepository.findByMemberId(String.valueOf(memberId));
+        User orinUser = userRepository.findByMemberId(memberId);
         User user;
 
         if (orinUser != null) {       //유저가 이미 있다면, 기존 유저에서 업데이트
@@ -242,7 +243,7 @@ public class UserController {
             return ResponseEntity.status(409).body("유저 ID 가 없습니다.");
         }
 
-        User orinUser = userRepository.findByMemberId(String.valueOf(userkeywordDto.getMemberId()));
+        User orinUser = userRepository.findByMemberId(userkeywordDto.getMemberId());
         User user;
         UserKeyword userKeyword = new UserKeyword();    //키워드마다 저장해줄 것
 
@@ -252,7 +253,7 @@ public class UserController {
             user = new User();
             user.setMemberId(memberById.get().getId()); //memberId 매치
             userRepository.save(user);      //user 저장
-            user = userRepository.findByMemberId(String.valueOf(userkeywordDto.getMemberId())); //다시 userId가 포함된 객체로 리턴
+            user = userRepository.findByMemberId(userkeywordDto.getMemberId()); //다시 userId가 포함된 객체로 리턴
         }
 
         userKeyword.setUser(user);  //연관관계 매핑.
@@ -270,7 +271,9 @@ public class UserController {
         allKeywordResult.setCount(allKeywordResult.getCount() + 1);   //1회 늘려준다.
         allKeywordRepository.save(allKeywordResult);
 
-        userKeywordRepository.save(userKeyword);//저장.
+        if(!userKeywordRepository.existsByUserIdAndKeyword(user.getId(), userKeyword.getKeyword()))     //중복이 아닌경우만 저장.
+            userKeywordRepository.save(userKeyword);//저장.
+
         return ResponseEntity.ok("저장 성공");
     }
 
@@ -297,7 +300,7 @@ public class UserController {
             return fail;
         }
 
-        User orinUser = userRepository.findByMemberId(String.valueOf(memberId));
+        User orinUser = userRepository.findByMemberId(memberId);
         User user;
         UserKeyword userKeyword = new UserKeyword();    //키워드마다 저장해줄 것
 
@@ -307,10 +310,10 @@ public class UserController {
             user = new User();
             user.setMemberId(member.get().getId()); //memberId 매치
             userRepository.save(user);      //user 저장
-            user = userRepository.findByMemberId(String.valueOf(memberId)); //다시 userId가 포함된 객체로 리턴
+            user = userRepository.findByMemberId(memberId); //다시 userId가 포함된 객체로 리턴
         }
 
-        List<UserKeyword> userKeywordList = userKeywordRepository.findTop10ByUserIdOrderByModifiedDateDesc(String.valueOf(user.getId()));
+        List<UserKeyword> userKeywordList = userKeywordRepository.findTop10ByUserIdOrderByModifiedDateDesc(user.getId());
         List<String> userKeywordString = new ArrayList<>();
 
         for (UserKeyword keyword : userKeywordList) {
@@ -352,8 +355,9 @@ public class UserController {
     })
     @GetMapping("/common/keyword/recommendation")
     public MultipleResult<String> getUserKeyword(@RequestParam String keyword) {
-        List<AllKeyword> allKeywordList = allKeywordRepository.findTop10ByKeywordLikeOrderByCountDesc(keyword);
+        List<AllKeyword> allKeywordList = allKeywordRepository.findTop10ByKeywordLikeOrderByCountDesc("%"+keyword+"%");
         List<String> allKeywordString = new ArrayList<>();
+
 
         for (AllKeyword allKeyword : allKeywordList) {
             allKeywordString.add(allKeyword.getKeyword());
