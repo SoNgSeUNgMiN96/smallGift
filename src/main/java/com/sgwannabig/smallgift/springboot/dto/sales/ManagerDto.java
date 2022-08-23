@@ -2,34 +2,38 @@ package com.sgwannabig.smallgift.springboot.dto.sales;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class ManagerDto {
     @ApiModelProperty(value = "13")
-    long managerId;
+    private long managerId;
 
     @ApiModelProperty(example = "홍길동")
-    String username;
+    private String username;
 
     @ApiModelProperty(example = "홍짜장")
-    String businessName;
+    private String businessName;
 
     @ApiModelProperty(example = "경기도 안양시 만안구 XXX")
-    String address;
+    private String address;
 
     @ApiModelProperty(example = "999-99-000949")
-    String businessTel;
+    private String businessTel;
 
     @ApiModelProperty(example = "음식점")
-    String businessType;
+    private String businessType;
 
     @ApiModelProperty(example = "우리은행")
-    String bankName;
+    private String bankName;
 
     @ApiModelProperty(example = "110-464-062460")
-    String bankAccount;
+    private String bankAccount;
 
-    @ApiModelProperty(example = "/test/menu.png")
-    String managerImage;
+    @ApiModelProperty(example = "/test/manager.png")
+    private MultipartFile managerAttachFile;
+
+    @ApiModelProperty(example = "/test/sales.png")
+    private MultipartFile salesAttachFile;
 }
 

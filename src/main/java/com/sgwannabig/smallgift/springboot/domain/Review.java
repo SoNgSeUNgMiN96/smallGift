@@ -8,43 +8,29 @@ import javax.persistence.*;
 
 @Data
 @Entity
-public class Product {
+public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "PRODUCT_ID")
+    @Column(name = "REVIEW_ID")
     private Long id;
 
     @NotNull
-    private String category;
+    private Long managerId;
 
     @NotNull
-    private String productName;
-
+    private String reviewTitle;
     @NotNull
-    private int productPrice;
+    private String reviewContents;
     @NotNull
-    private int discountPrice;
-
-    @NotNull
-    private long productStock;
-
-    @NotNull
-    private int status;
-
-    private String productBuyer;
-
-    @NotNull
-    private String createDate;
-
-    @NotNull
-    private String startDate;
-
-    @NotNull
-    private String endDate;
+    private String reviewDate;
 
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "manager_id")
 //    private Manager manager;
+//
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "user_Id")
+//    private User user;
 
 //    private UploadFile imageFile;
 }

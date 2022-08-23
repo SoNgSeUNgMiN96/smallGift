@@ -3,26 +3,37 @@ package com.sgwannabig.smallgift.springboot.controller;
 import com.sgwannabig.smallgift.springboot.domain.Manager;
 import com.sgwannabig.smallgift.springboot.domain.Product;
 import com.sgwannabig.smallgift.springboot.dto.sales.*;
+import com.sgwannabig.smallgift.springboot.repository.ManagerRepository;
+import com.sgwannabig.smallgift.springboot.repository.ProductRepository;
 import com.sgwannabig.smallgift.springboot.service.SalesManagementService;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriUtils;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-@Component
 @RestController
 @RequestMapping("api/manager")
 @RequiredArgsConstructor
 public class SalesManagementController {
     private final SalesManagementService salesManagementService;
+    private final ManagerRepository managerRepository;
+//    private final S3Service s3Service;
+    //private final FileStore fileStore;
 
     @ApiOperation(value = "관리자 메인", notes = "관리자 메인 페이지입니다.")
     @ApiResponses({
@@ -55,7 +66,7 @@ public class SalesManagementController {
             @ApiResponse(code = 405, message = "올바른 요청을 해주세요.")
     })
     @PostMapping("/registration/manager")
-    public ManagerResponseDto managerRegistration(@RequestBody ManagerDto managerDto) {
+    public ManagerResponseDto managerRegistration(@RequestBody ManagerDto managerDto) throws IOException {
         Manager manager = salesManagementService.saveManager(managerDto);
 
         ManagerResponseDto managerResponseDto = new ManagerResponseDto();
@@ -67,6 +78,30 @@ public class SalesManagementController {
         return managerResponseDto;
     }
 
+//    @PostMapping("/registration/manager") // multipart/form-data 방식으로 요청
+//    public void uploadFile(@RequestParam MultipartFile multipartFile) throws IOException {
+//        s3Service.saveUploadFile(multipartFile);
+//    }
+
+//    @GetMapping("/registration/manager/{managerId}")
+//    public ResponseEntity<Resource> downloadAttach(@PathVariable Long managerId)
+//            throws MalformedURLException {
+//        Manager manager = managerRepository.findById(managerId).orElse(null);
+//        String storeFileName = manager.getManagerAttachFile().getStoreFileName();
+//        String uploadFileName = manager.getSalesAttachFile().getUploadFileName();
+//
+//        UrlResource resource = new UrlResource("file:" +
+//                fileStore.getFullPath(storeFileName));
+//
+//        String encodedUploadFileName = UriUtils.encode(uploadFileName,
+//                StandardCharsets.UTF_8);
+//        String contentDisposition = "attachment; filename=\"" +
+//                encodedUploadFileName + "\"";
+//        return ResponseEntity.ok()
+//                .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
+//                .body(resource);
+//    }
+
     @ApiOperation(value = "상품 등록", notes = "상품 등록 API")
     @ApiResponses({
             @ApiResponse(code = 200, message = "성공"),
@@ -76,7 +111,7 @@ public class SalesManagementController {
             @ApiResponse(code = 405, message = "올바른 요청을 해주세요.")
     })
     @PostMapping("/registration/product")
-    public ProductResponseDto productRegistration(@RequestBody ProductRequestDto productRequestDto) {
+    public ProductResponseDto productRegistration(@RequestBody ProductRequestDto productRequestDto) throws IOException {
         Product product = salesManagementService.saveProduct(productRequestDto);
 
         ProductResponseDto productResponseDto = new ProductResponseDto();
@@ -87,6 +122,12 @@ public class SalesManagementController {
         }
         return productResponseDto;
     }
+
+//    @GetMapping("/registration/product/{filename}")
+//    public Resource downloadImage(@PathVariable String filename) throws
+//            MalformedURLException {
+//        return new UrlResource("file:" + fileStore.getFullPath(filename));
+//    }
 
     @ApiOperation(value = "상품 관리", notes = "가게의 상품들을 보여준다.")
     @ApiResponses({
@@ -148,7 +189,7 @@ public class SalesManagementController {
             @ApiResponse(code = 405, message = "올바른 요청을 해주세요.")
     })
     @PostMapping("/productList/modification")
-    public ResponseEntity<UpdateProductResponseDto> productModification(@RequestBody UpdateProductRequestDto updateProductRequestDto) {
+    public ResponseEntity<UpdateProductResponseDto> productModification(@RequestBody UpdateProductRequestDto updateProductRequestDto) throws IOException {
         Product product = salesManagementService.updateProduct(updateProductRequestDto);
 
         if(product == null) throw new NoSuchElementException();

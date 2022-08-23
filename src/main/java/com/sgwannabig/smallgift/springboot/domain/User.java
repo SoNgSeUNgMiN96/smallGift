@@ -32,4 +32,7 @@ public class User extends BaseTimeEntity{
     @OneToMany(mappedBy = "user")      //유저의 검색어 목부
     private List<UserKeyword> userKeywords = new ArrayList<UserKeyword>();
 
+//    @OneToMany(mappedBy = "user")
+//    private List<Review> reviews = new ArrayList<Review>();
+
 }

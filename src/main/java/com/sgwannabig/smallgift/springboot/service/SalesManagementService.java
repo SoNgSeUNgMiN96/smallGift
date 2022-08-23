@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,14 +27,18 @@ public class SalesManagementService {
     private ManagerRepository managerRepository;
     @Autowired
     private ProductRepository productRepository;
+//    private final FileStore fileStore;
 
     // 사업자 등록
-    public Manager saveManager(ManagerDto managerDto) {
+    public Manager saveManager(ManagerDto managerDto) throws IOException {
 
         Manager manager = managerRepository.findById(managerDto.getManagerId()).orElse(null);
 
         if(manager == null) {
             manager = new Manager();
+//            UploadFile managerImage = fileStore.storeFile(managerDto.getManagerAttachFile());
+//            UploadFile salesImage = fileStore.storeFile(managerDto.getSalesAttachFile());
+
             manager.setId(managerDto.getManagerId());
             manager.setUsername(managerDto.getUsername());
             manager.setBusinessName(managerDto.getAddress());
@@ -41,7 +46,8 @@ public class SalesManagementService {
             manager.setBusinessType(managerDto.getBusinessType());
             manager.setSettlementBank(managerDto.getBankName());
             manager.setSettlementAccount(managerDto.getBankAccount());
-            //manager.setImagePath(managerDto.getManagerImage());
+//            manager.setManagerAttachFile(managerImage);
+            //manager.setSalesAttachFile(salesImage);
             managerRepository.save(manager);
         }
 
@@ -49,10 +55,12 @@ public class SalesManagementService {
     }
 
     // 상품 등록
-    public Product saveProduct(ProductRequestDto productRequestDto) {
+    public Product saveProduct(ProductRequestDto productRequestDto) throws IOException {
         Product product = productRepository.findById(productRequestDto.getProductId()).orElse(null);
         if(product == null) {
             product = new Product();
+//            UploadFile imageFile = fileStore.storeFile(productRequestDto.getImageFile());
+
             product.setId(productRequestDto.getProductId());
             product.setCategory(productRequestDto.getCategory());
             product.setProductName(productRequestDto.getProductName());
@@ -61,7 +69,7 @@ public class SalesManagementService {
             product.setStatus(productRequestDto.getStatus());
             product.setStartDate(productRequestDto.getStart_dt());
             product.setEndDate(productRequestDto.getEnd_dt());
-            //product.setMenuImagePath(productRequestDto.getMenuImage());
+//            product.setImageFile(imageFile);
             productRepository.save(product);
         }
         return product;
@@ -98,16 +106,18 @@ public class SalesManagementService {
     }
 
     // 상품 수정
-    public Product updateProduct(UpdateProductRequestDto updateProductRequestDto) {
+    public Product updateProduct(UpdateProductRequestDto updateProductRequestDto) throws IOException {
         Product product = productRepository.findById(updateProductRequestDto.getProductId()).orElse(null);
         if(product == null) return null;
+
+//        UploadFile imageFile = fileStore.storeFile(updateProductRequestDto.getImageFile());
 
         product.setProductName(updateProductRequestDto.getProductName());
         product.setProductPrice(updateProductRequestDto.getProductPrice());
         product.setProductStock(updateProductRequestDto.getProductPrice());
         product.setStartDate(updateProductRequestDto.getStart_dt());
         product.setEndDate(updateProductRequestDto.getEnd_dt());
-        //product.setMenuImagePath(updateProductRequestDto.getMenuImagePath());
+//        product.setImageFile(imageFile);
         productRepository.save(product);
         return product;
     }
