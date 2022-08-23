@@ -2,6 +2,7 @@ package com.sgwannabig.smallgift.springboot.domain;
 
 import com.sun.istack.NotNull;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 
@@ -14,9 +15,6 @@ public class Review {
     private Long id;
 
     @NotNull
-    private Long shopId;
-
-    @NotNull
     private Long managerId;
 
     @NotNull
@@ -25,6 +23,14 @@ public class Review {
     private String reviewContents;
     @NotNull
     private String reviewDate;
+
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "manager_id")
+//    private Manager manager;
+//
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "user_Id")
+//    private User user;
 
 //    private UploadFile imageFile;
 }
