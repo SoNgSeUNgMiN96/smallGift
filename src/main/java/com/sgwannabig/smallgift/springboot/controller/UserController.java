@@ -313,6 +313,8 @@ public class UserController {
             user = userRepository.findByMemberId(memberId); //다시 userId가 포함된 객체로 리턴
         }
 
+
+
         List<UserKeyword> userKeywordList = userKeywordRepository.findTop10ByUserIdOrderByModifiedDateDesc(user.getId());
         List<String> userKeywordString = new ArrayList<>();
 
@@ -324,6 +326,32 @@ public class UserController {
     }
 
 
+    @ApiOperation(value = "/keyword/all", notes = "유저의 키워드를 모두 삭제합니다.")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "memberId", value = "맴버 아이디 (서버에서 보내준 DB상 memberID)", required = true),
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "삭제 성공"),
+            @ApiResponse(code = 409, message = "유저 ID 가 없습니다."),
+            @ApiResponse(code = 500, message = "서버에러"),
+    })
+    @DeleteMapping("/keyword/all")
+    public ResponseEntity<String> deleteAllUserKeyword(@RequestParam long memberId) {
+
+        User user = userRepository.findByMemberId(memberId);
+
+        if(user==null){
+            return ResponseEntity.status(409).body("유저ID가 없습니다");
+        }
+
+        List<UserKeyword> userKeywordList = userKeywordRepository.findAllByUserId(user.getId());
+
+        for (UserKeyword userKeyword : userKeywordList) {
+            userKeywordRepository.deleteById(userKeyword.getId());
+        }
+        return ResponseEntity.ok("삭제 성공");
+    }
+
     @ApiOperation(value = "/common/keyword/top10", notes = "가장 많이 검색된 키워드 Top10을 보여줍니다.")
     @ApiImplicitParams({
     })
@@ -334,7 +362,7 @@ public class UserController {
     @GetMapping("/common/keyword/top10")
     public MultipleResult<String> getKeywordTop10() {
         //가장 높은 숫자 10개를 뽑아온다.
-        List<AllKeyword> allKeywords = allKeywordRepository.findAllTop10ByOrderByCountDesc();
+        List<AllKeyword> allKeywords = allKeywordRepository.findTop10ByOrderByCountDesc();
         List<String> topKeywordString = new ArrayList<>();
 
         for (AllKeyword allKeyword : allKeywords) {
