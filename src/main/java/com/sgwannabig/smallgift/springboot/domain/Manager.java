@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 @Entity
 public class Manager extends BaseTimeEntity {
 
