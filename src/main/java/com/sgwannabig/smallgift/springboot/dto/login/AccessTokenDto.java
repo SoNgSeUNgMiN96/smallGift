@@ -1,4 +1,4 @@
-package com.sgwannabig.smallgift.springboot.dto;
+package com.sgwannabig.smallgift.springboot.dto.login;
 
 import lombok.Builder;
 import lombok.Data;

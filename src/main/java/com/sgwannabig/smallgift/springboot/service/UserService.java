@@ -2,7 +2,7 @@ package com.sgwannabig.smallgift.springboot.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sgwannabig.smallgift.springboot.dto.KakaoProfile;
+import com.sgwannabig.smallgift.springboot.dto.login.KakaoProfile;
 import com.sgwannabig.smallgift.springboot.domain.Member;
 import com.sgwannabig.smallgift.springboot.domain.OauthToken;
 import com.sgwannabig.smallgift.springboot.repository.MemberRepository;

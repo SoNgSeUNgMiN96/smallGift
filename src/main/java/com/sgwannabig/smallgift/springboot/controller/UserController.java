@@ -1,10 +1,8 @@
 package com.sgwannabig.smallgift.springboot.controller;
 
 
-import com.sgwannabig.smallgift.springboot.domain.AllKeyword;
-import com.sgwannabig.smallgift.springboot.domain.Member;
-import com.sgwannabig.smallgift.springboot.domain.User;
-import com.sgwannabig.smallgift.springboot.domain.UserKeyword;
+import com.sgwannabig.smallgift.springboot.domain.*;
+import com.sgwannabig.smallgift.springboot.dto.user.KeywordTopTenDto;
 import com.sgwannabig.smallgift.springboot.dto.user.UserLocateDto;
 import com.sgwannabig.smallgift.springboot.dto.user.UserInfoDto;
 import com.sgwannabig.smallgift.springboot.dto.user.UserkeywordDto;
@@ -24,6 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,7 +69,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("userId를 찾기 못했습니다");
         }
 
-        //이부분  findByMemberId 로 수정해줘야함. <- 로지 검증 및 테스팅 필요.
+        //이부분  findByMemberId 로 수정해줘야함. <- 로직 검증 및 테스팅 필요.
         User orinUser = userRepository.findByMemberId(memberId);
         User user;
 
@@ -360,16 +359,19 @@ public class UserController {
             @ApiResponse(code = 500, message = "서버에러"),
     })
     @GetMapping("/common/keyword/top10")
-    public MultipleResult<String> getKeywordTop10() {
+    public SingleResult<KeywordTopTenDto> getKeywordTop10() {
         //가장 높은 숫자 10개를 뽑아온다.
         List<AllKeyword> allKeywords = allKeywordRepository.findTop10ByOrderByCountDesc();
-        List<String> topKeywordString = new ArrayList<>();
 
-        for (AllKeyword allKeyword : allKeywords) {
-            topKeywordString.add(allKeyword.getKeyword());
+        //keyword를 감싸줄 Dto
+        KeywordTopTenDto keywordTopTenDto = KeywordTopTenDto.builder().keywordTopTen(new ArrayList<>()).build();
+
+
+        for (int i = 0; i < 10; i++) {
+            keywordTopTenDto.getKeywordTopTen().add(new KeyValueDto<Integer,String>(i+1,allKeywords.get(i).getKeyword()));
         }
 
-        return responseService.getMultipleResult(topKeywordString);
+        return responseService.getSingleResult(keywordTopTenDto);
     }
 
 
@@ -383,9 +385,9 @@ public class UserController {
     })
     @GetMapping("/common/keyword/recommendation")
     public MultipleResult<String> getUserKeyword(@RequestParam String keyword) {
+
         List<AllKeyword> allKeywordList = allKeywordRepository.findTop10ByKeywordLikeOrderByCountDesc("%"+keyword+"%");
         List<String> allKeywordString = new ArrayList<>();
-
 
         for (AllKeyword allKeyword : allKeywordList) {
             allKeywordString.add(allKeyword.getKeyword());

@@ -17,7 +17,9 @@ public class AllKeyword extends BaseTimeEntity{
     @Column(name = "allKeyword_id")
     private long id;
 
+    @Column(unique = true, nullable = false)  //unique설정이 필요함, 빈 값은 허용하지 않음.
     String keyword;
 
+    @Column(nullable = false)  //빈 값은 허용 X
     int count;
 }
