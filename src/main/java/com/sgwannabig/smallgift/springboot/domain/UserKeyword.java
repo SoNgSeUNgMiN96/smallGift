@@ -19,5 +19,6 @@ public class UserKeyword extends BaseTimeEntity{
     @JoinColumn(name = "USER_ID")
     private User user;
 
+    @Column(unique = true, nullable = false)  //unique설정이 필요함, 빈 값은 허용하지 않음.
     String keyword;
 }

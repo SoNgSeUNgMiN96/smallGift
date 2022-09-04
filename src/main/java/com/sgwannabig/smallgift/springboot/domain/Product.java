@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -13,6 +15,21 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PRODUCT_ID")
     private Long id;
+
+
+    //가게는 많은 상품을 갖는다.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shop_id")
+    private Shop shop;
+
+    //상품은 여러 리뷰를 갖는다.
+    @OneToMany(mappedBy = "product")
+    private List<Review> review = new ArrayList<Review>();
+
+    //상품은 여러개의 주문 내역을 가질 수 있다.
+    @OneToMany(mappedBy = "product")
+    private List<OrderDetails> orderDetails = new ArrayList<OrderDetails>();
+
 
     @NotNull
     private String category;
@@ -42,9 +59,5 @@ public class Product {
     @NotNull
     private String endDate;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "manager_id")
-//    private Manager manager;
 
-//    private UploadFile imageFile;
 }

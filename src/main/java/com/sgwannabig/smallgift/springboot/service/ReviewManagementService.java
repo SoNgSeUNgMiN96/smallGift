@@ -34,7 +34,7 @@ public class ReviewManagementService {
             temp.setReviewId(review.getId());
             temp.setReviewTitle(review.getReviewTitle());
             temp.setReviewContents(review.getReviewContents());
-            temp.setReviewDate(review.getReviewDate());
+            temp.setReviewDate(review.getCreateDate().toString());
             reviewResponseDtos.add(temp);
         }
         return reviewResponseDtos;

@@ -19,6 +19,16 @@ public class Manager extends BaseTimeEntity {
     @Column(name = "manager_id")
     private Long id;
 
+
+    @OneToMany(mappedBy = "manager")      //매니저의 가게 생성 매핑 연관관계
+    private List<Shop> shops = new ArrayList<Shop>();
+
+
+    //매니저는 정산내역을 일대다로 가질 수 있다.
+    @OneToMany(mappedBy = "manager")
+    private List<SettlementDetails> settlementDetails = new ArrayList<SettlementDetails>();
+
+
     @NotNull
     private String username;
 

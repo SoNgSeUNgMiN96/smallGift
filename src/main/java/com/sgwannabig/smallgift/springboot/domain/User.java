@@ -18,6 +18,22 @@ public class User extends BaseTimeEntity{
     @Column(name = "user_Id")
     private long id;
 
+    //유저는 여러 리뷰를 남길 수 있다..
+    @OneToMany(mappedBy = "user")
+    private List<Review> review = new ArrayList<Review>();
+
+    @OneToMany(mappedBy = "user")      //유저의 검색어 목부
+    private List<UserKeyword> userKeywords = new ArrayList<UserKeyword>();
+
+
+    //유저는 여러개의 주문 내역을 가질 수 있다.
+    @OneToMany(mappedBy = "user")
+    private List<OrderDetails> orderDetails = new ArrayList<OrderDetails>();
+
+    //유저는 여러개의 환불 내역을 가질 수 있다.
+    @OneToMany(mappedBy = "user")
+    private List<RefundDetails> refundDetails = new ArrayList<RefundDetails>();
+
     private long memberId;
 
     String userPhone;
@@ -27,12 +43,4 @@ public class User extends BaseTimeEntity{
     String userRefundBank;
     String userRefundAccount;
     String userArea;
-
-
-    @OneToMany(mappedBy = "user")      //유저의 검색어 목부
-    private List<UserKeyword> userKeywords = new ArrayList<UserKeyword>();
-
-//    @OneToMany(mappedBy = "user")
-//    private List<Review> reviews = new ArrayList<Review>();
-
 }
