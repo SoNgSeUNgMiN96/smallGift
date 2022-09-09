@@ -13,7 +13,7 @@ import java.util.List;
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "PRODUCT_ID")
+    @Column(name = "product_id")
     private Long id;
 
 
@@ -59,5 +59,7 @@ public class Product {
     @NotNull
     private String endDate;
 
-
+    //메뉴가 받은 총 좋아요 수
+    @Column(nullable = false)
+    long likeCount;
 }
