@@ -1,4 +1,4 @@
-package com.sgwannabig.smallgift.springboot.controller;
+package com.sgwannabig.smallgift.springboot.controller.user;
 
 
 import com.sgwannabig.smallgift.springboot.dto.shop.ShopInfoDto;

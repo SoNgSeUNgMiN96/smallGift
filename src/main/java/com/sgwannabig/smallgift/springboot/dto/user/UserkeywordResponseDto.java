@@ -1,7 +1,7 @@
 package com.sgwannabig.smallgift.springboot.dto.user;
 
 
-import com.sgwannabig.smallgift.springboot.domain.KeyValueDto;
+import com.sgwannabig.smallgift.springboot.dto.KeyValueDto;
 import lombok.Builder;
 import lombok.Data;
 

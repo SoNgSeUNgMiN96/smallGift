@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 @Entity
 public class RefundDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "refund_details_id")
