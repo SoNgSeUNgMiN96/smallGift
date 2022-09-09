@@ -1,4 +1,4 @@
-package com.sgwannabig.smallgift.springboot.domain;
+package com.sgwannabig.smallgift.springboot.dto;
 
 
 import lombok.*;
@@ -6,6 +6,7 @@ import lombok.*;
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class KeyValueDto <IdType, ValueType> {
+
     private IdType id;
     private ValueType data;
 

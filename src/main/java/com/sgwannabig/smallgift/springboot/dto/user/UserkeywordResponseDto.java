@@ -7,8 +7,8 @@ import lombok.Data;
 
 import java.util.List;
 
-@Data
 @Builder
-public class KeywordTopTenDto {
-    List<KeyValueDto<Integer,String>> keywordTopTen;
+@Data
+public class UserkeywordResponseDto {
+    List<KeyValueDto<Integer,String>> userKeywords;
 }

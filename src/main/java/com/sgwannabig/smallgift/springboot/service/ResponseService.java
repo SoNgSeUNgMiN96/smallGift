@@ -16,7 +16,13 @@ public class ResponseService {
         SingleResult<T> result = new SingleResult<>();
         setSuccessResult(result);
         result.setData(data);
+        return result;
+    }
 
+    public <T> SingleResult<T> getfailResult(int code, T data) {
+        SingleResult<T> result = new SingleResult<>();
+        result.setCode(code);
+        result.setData(data);
         return result;
     }
 

@@ -1,11 +1,9 @@
-package com.sgwannabig.smallgift.springboot.controller;
+package com.sgwannabig.smallgift.springboot.controller.user;
 
 
 import com.sgwannabig.smallgift.springboot.domain.*;
-import com.sgwannabig.smallgift.springboot.dto.user.KeywordTopTenDto;
-import com.sgwannabig.smallgift.springboot.dto.user.UserLocateDto;
-import com.sgwannabig.smallgift.springboot.dto.user.UserInfoDto;
-import com.sgwannabig.smallgift.springboot.dto.user.UserkeywordDto;
+import com.sgwannabig.smallgift.springboot.dto.KeyValueDto;
+import com.sgwannabig.smallgift.springboot.dto.user.*;
 import com.sgwannabig.smallgift.springboot.repository.AllKeywordRepository;
 import com.sgwannabig.smallgift.springboot.repository.MemberRepository;
 import com.sgwannabig.smallgift.springboot.repository.UserKeywordRepository;
@@ -22,9 +20,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 @Component
 @RestController
@@ -287,13 +285,13 @@ public class UserController {
             @ApiResponse(code = 500, message = "서버에러"),
     })
     @GetMapping("/keyword")
-    public MultipleResult<String> getUserKeyword(@RequestParam long memberId) {
+    public SingleResult<UserkeywordResponseDto> getUserKeyword(@RequestParam long memberId) {
 
         Optional<Member> member = memberRepository.findById(memberId);
 
         if (!member.isPresent()) {       //멤버 아이디 자체가 없는경우 ? 에러
 
-            MultipleResult fail = new MultipleResult();
+            SingleResult fail = new SingleResult();
             fail.setCode(409);
             fail.setMsg("유저 ID 가 없습니다.");
             return fail;
@@ -312,16 +310,19 @@ public class UserController {
             user = userRepository.findByMemberId(memberId); //다시 userId가 포함된 객체로 리턴
         }
 
-
+        //Return 해줄 유저 키워드 배열 객체
+        UserkeywordResponseDto userkeywordResponseDto = UserkeywordResponseDto.builder()
+                .userKeywords(new ArrayList<>()).build();
 
         List<UserKeyword> userKeywordList = userKeywordRepository.findTop10ByUserIdOrderByModifiedDateDesc(user.getId());
-        List<String> userKeywordString = new ArrayList<>();
+
+        int idx =1;
 
         for (UserKeyword keyword : userKeywordList) {
-            userKeywordString.add(keyword.getKeyword());
+            userkeywordResponseDto.getUserKeywords().add(new KeyValueDto<Integer,String>(idx++,keyword.getKeyword()));
         }
 
-        return responseService.getMultipleResult(userKeywordString);
+        return responseService.getSingleResult(userkeywordResponseDto);
     }
 
 
@@ -384,16 +385,14 @@ public class UserController {
             @ApiResponse(code = 500, message = "서버에러"),
     })
     @GetMapping("/common/keyword/recommendation")
-    public MultipleResult<String> getUserKeyword(@RequestParam String keyword) {
+    public SingleResult<RecommendationDto> getUserKeyword(@RequestParam String keyword) {
 
         List<AllKeyword> allKeywordList = allKeywordRepository.findTop10ByKeywordLikeOrderByCountDesc("%"+keyword+"%");
-        List<String> allKeywordString = new ArrayList<>();
 
-        for (AllKeyword allKeyword : allKeywordList) {
-            allKeywordString.add(allKeyword.getKeyword());
-        }
+        RecommendationDto recommendationDto = RecommendationDto.builder().recommendationTopTen(new ArrayList<>()).build();
+        IntStream.range(0,10).forEach(i->recommendationDto.getRecommendationTopTen().add(new KeyValueDto<>(i+1,allKeywordList.get(i).getKeyword())));
 
-        return responseService.getMultipleResult(allKeywordString);
+        return responseService.getSingleResult(recommendationDto);
     }
 
 
