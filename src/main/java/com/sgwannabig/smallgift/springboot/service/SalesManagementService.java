@@ -77,7 +77,9 @@ public class SalesManagementService {
 
     // 상품 관리
     public List<ShopProductDto> showProducts(Long shopId) {
-        List<Product> products = productRepository.findAllById(shopId);
+
+        List<Product> products = productRepository.findAllByShopId(shopId).get();
+
         if(products.isEmpty()) {
             return null;
         }

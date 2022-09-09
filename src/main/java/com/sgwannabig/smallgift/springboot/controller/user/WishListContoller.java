@@ -2,6 +2,7 @@ package com.sgwannabig.smallgift.springboot.controller.user;
 
 
 import com.sgwannabig.smallgift.springboot.domain.Product;
+import com.sgwannabig.smallgift.springboot.domain.Shop;
 import com.sgwannabig.smallgift.springboot.domain.User;
 import com.sgwannabig.smallgift.springboot.domain.WishList;
 import com.sgwannabig.smallgift.springboot.dto.KeyValueDto;
@@ -9,6 +10,7 @@ import com.sgwannabig.smallgift.springboot.dto.user.WishProductDto;
 import com.sgwannabig.smallgift.springboot.dto.user.WishListReqDto;
 import com.sgwannabig.smallgift.springboot.dto.user.WishListResDto;
 import com.sgwannabig.smallgift.springboot.repository.ProductRepository;
+import com.sgwannabig.smallgift.springboot.repository.ShopRepository;
 import com.sgwannabig.smallgift.springboot.repository.UserRepository;
 import com.sgwannabig.smallgift.springboot.repository.WishListRepository;
 import com.sgwannabig.smallgift.springboot.service.ResponseService;
@@ -42,6 +44,9 @@ public class WishListContoller {
 
     @Autowired
     private final UserRepository userRepository;
+
+    @Autowired
+    private final ShopRepository shopRepository;
 
 
     @ApiOperation(value = "/wishList", notes = "유저의 찜 목록을 조회합니다.")
@@ -109,6 +114,7 @@ public class WishListContoller {
         Optional<Product> productById = productRepository.findById(wishListReqDto.getProductId());
         Optional<User> userById = userRepository.findById(wishListReqDto.getUserId());
 
+
         SingleResult singleResult = new SingleResult();
 
         if(isExist){
@@ -124,11 +130,23 @@ public class WishListContoller {
             return singleResult;
         }
 
+        Optional<Shop> shopByProductId = shopRepository.findById(productById.get().getShop().getId());
+
         WishList wishList = new WishList();
         wishList.setProduct(productById.get());
         wishList.setUser(userById.get());
 
         wishListRepository.save(wishList);
+
+        //상품의 좋아요를 한개 늘린다.
+        productById.get().setLikeCount(productById.get().getLikeCount()+1);
+
+        //상점의 누적 좋아요를 한개 늘린다.
+        shopByProductId.get().setTotalLike(shopByProductId.get().getTotalLike()+1);
+
+        //저장
+        productRepository.save(productById.get());
+        shopRepository.save(shopByProductId.get());
 
         return responseService.getSingleResult("찜 성공");
     }
@@ -149,6 +167,26 @@ public class WishListContoller {
 
 
         Optional<WishList> wishListById = wishListRepository.findById(wishListId);
+
+        //찜 상품을 하나 가져온다.
+        Product product = wishListById.get().getProduct();
+
+        //좋아요 누적치를 감소시킨다.
+        if(product!=null){
+            Optional<Shop> shopOptional = shopRepository.findById(product.getShop().getId());
+
+            //1개 감소
+            product.setLikeCount(product.getLikeCount() - 1);
+
+            shopOptional.ifPresent( shop -> {
+                shop.setTotalLike(shop.getTotalLike() - 1);
+                shopRepository.save(shop);
+            });
+
+            productRepository.save(product);
+
+        }
+
 
         AtomicReference<SingleResult<String>> singleResult = null;
 

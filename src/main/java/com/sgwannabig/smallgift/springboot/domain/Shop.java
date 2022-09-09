@@ -1,6 +1,7 @@
 package com.sgwannabig.smallgift.springboot.domain;
 
 
+import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Data
 public class Shop extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -27,7 +29,6 @@ public class Shop extends BaseTimeEntity{
     //가게는 여러 리뷰를 가진다.
     @OneToMany(mappedBy = "shop")
     private List<Review> review = new ArrayList<Review>();
-
 
 
     //카테고리를 저장한다.
@@ -54,5 +55,9 @@ public class Shop extends BaseTimeEntity{
 
     //가게 영업시간 정보. 텍스트로 직접 설정하고 편집할 말을 적는다.
     String businessHours;
+
+    //가게가 담은 총 좋아요 수
+    @Column(nullable = false)
+    long totalLike;
 
 }
