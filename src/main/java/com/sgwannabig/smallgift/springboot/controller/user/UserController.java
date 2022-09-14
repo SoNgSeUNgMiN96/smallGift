@@ -125,10 +125,7 @@ public class UserController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "memberId", value = "멤버아이디", required = true),
             @ApiImplicitParam(name = "userPhone", value = "유저 휴대폰 번호", required = true),
-            @ApiImplicitParam(name = "userPolicy", value = "이용약관동의여부", required = true),
-            @ApiImplicitParam(name = "userInfoAgree", value = "개인정보 취급 동의여부", required = true),
-            @ApiImplicitParam(name = "userLocationAgree", value = "위치기반서비스동의여부", required = true),
-            @ApiImplicitParam(name = "userPhone", value = "유저 휴대폰 번호", required = true),
+            @ApiImplicitParam(name = "userName", value = "유저 이름", required = true),
             @ApiImplicitParam(name = "accountBank", value = "환불 계좌은행", required = true),
             @ApiImplicitParam(name = "accountNumber", value = "환불 계좌 번호", required = true),
     })
@@ -162,9 +159,10 @@ public class UserController {
         user.setUserPhone(userInfoDto.getUserPhone());
         user.setUserRefundBank(userInfoDto.getAccountBank());
         user.setUserRefundAccount(userInfoDto.getAccountNumber());
-        user.setUserLocationAgree(userInfoDto.isUserLocationAgree());
-        user.setUserInfoAgree(userInfoDto.isUserInfoAgree());
-        user.setUserPolicyAgree(userInfoDto.isUserPolicyAgree());
+        user.setUserName(userInfoDto.getUserName());
+        user.setUserLocationAgree(true);
+        user.setUserInfoAgree(true);
+        user.setUserPolicyAgree(true);
 
         userRepository.save(user);
 
@@ -210,10 +208,8 @@ public class UserController {
         //userInfoDto.set(user.getId());
         userInfoDto.setUserPhone(user.getUserPhone());
         userInfoDto.setAccountBank(user.getUserRefundBank());
+        userInfoDto.setUserName(user.getUserName());
         userInfoDto.setAccountNumber(user.getUserRefundAccount());
-        userInfoDto.setUserInfoAgree(user.isUserInfoAgree());
-        userInfoDto.setUserLocationAgree(user.isUserLocationAgree());
-        userInfoDto.setUserPolicyAgree(user.isUserPolicyAgree());
 
         return responseService.getSingleResult(userInfoDto);
     }
@@ -389,8 +385,9 @@ public class UserController {
 
         List<AllKeyword> allKeywordList = allKeywordRepository.findTop10ByKeywordLikeOrderByCountDesc("%"+keyword+"%");
 
+
         RecommendationDto recommendationDto = RecommendationDto.builder().recommendationTopTen(new ArrayList<>()).build();
-        IntStream.range(0,10).forEach(i->recommendationDto.getRecommendationTopTen().add(new KeyValueDto<>(i+1,allKeywordList.get(i).getKeyword())));
+        IntStream.range(0,(10>allKeywordList.size())?allKeywordList.size():10).forEach(i->recommendationDto.getRecommendationTopTen().add(new KeyValueDto<>(i+1,allKeywordList.get(i).getKeyword())));
 
         return responseService.getSingleResult(recommendationDto);
     }

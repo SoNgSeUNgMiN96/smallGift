@@ -17,14 +17,8 @@ public class UserInfoDto {
     @ApiModelProperty(example = "010-2248-1245")
     String userPhone;
 
-    @ApiModelProperty(example = "true")
-    boolean userPolicyAgree;
-
-    @ApiModelProperty(example = "true")
-    boolean userInfoAgree;
-
-    @ApiModelProperty(example = "true")
-    boolean userLocationAgree;
+    @ApiModelProperty(example = "이모상")
+    String userName;
 
     @ApiModelProperty(example = "국민은행")
     String accountBank;
