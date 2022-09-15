@@ -36,6 +36,7 @@ public class User extends BaseTimeEntity{
 
     private long memberId;
 
+    String userName;
     String userPhone;
     boolean userPolicyAgree;
     boolean userInfoAgree;
