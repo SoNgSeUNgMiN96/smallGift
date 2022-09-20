@@ -298,9 +298,9 @@ public class LoginController {
             @ApiResponse(code = 402, message = "비밀번호는영문과 특수문자 숫자를 포함하며 8자 이상이어야 합니다.")
     })
     @GetMapping("/login")
-    public SingleResult<MemberLoginResponseDto> loginMember(@RequestBody MemberLoginRequestDto requestDto) {
-        MemberLoginResponseDto responseDto = memberService.loginMember(requestDto);
-        return responseService.getSingleResult(responseDto);
+    public JwtDto loginMember(@RequestBody MemberLoginRequestDto requestDto) {
+        JwtDto responseDto = JwtDto.builder().build();
+        return responseDto;
     }
 
     @ApiOperation(value = "아이디 중복체크", notes = "아이디 중복 확인을 진행한다.")

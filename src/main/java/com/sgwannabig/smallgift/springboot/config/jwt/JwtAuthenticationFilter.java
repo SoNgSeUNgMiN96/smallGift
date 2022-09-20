@@ -121,6 +121,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         refreshTokenRepository.save(new RefreshToken(jwtRefreshToken));
 
+
         String tokensJson = om.writeValueAsString(jwtDto);
         response.getWriter().write(tokensJson);
 
