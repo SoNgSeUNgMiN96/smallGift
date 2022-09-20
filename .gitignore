@@ -2,9 +2,11 @@
 /.gradle/
 /.idea
 /.idea/
-/build/
-/build
-build
+.gradle
+**/build/
+!src/**/build/
+
 application-real.properties
 application.properties
+application.yaml
 build/
