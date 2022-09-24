@@ -19,6 +19,7 @@ public class Manager extends BaseTimeEntity {
     @Column(name = "manager_id")
     private Long id;
 
+    private Long userId;
 
     @OneToMany(mappedBy = "manager")      //매니저의 가게 생성 매핑 연관관계
     private List<Shop> shops = new ArrayList<Shop>();
