@@ -1,11 +1,20 @@
 package com.sgwannabig.smallgift.springboot.domain;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Builder
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Payment extends BaseTimeEntity{
     //결제 아이디.
     @Id
