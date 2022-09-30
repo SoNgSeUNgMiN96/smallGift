@@ -201,7 +201,7 @@ public class OrderController {
     /*
           주문내역의 쿠폰조회
      */
-    @ApiOperation(value = "/order", notes = "유저의 주문의 쿠폰을 봅니다 ")
+    @ApiOperation(value = "/order/coupon", notes = "유저의 주문의 쿠폰을 봅니다 ")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "orderDetailsId", value = "멤버 아이디", required = true),
     })
@@ -210,7 +210,7 @@ public class OrderController {
             @ApiResponse(code = 408, message = "멤버 아이디에 매치되는 유저가 없습니다."),
             @ApiResponse(code = 500, message = "서버에러"),
     })
-    @GetMapping("/order/all")
+    @GetMapping("/order/coupon")
     public SingleResult<UserOrderDetailsAllDto> getCouponByOrderId(@RequestParam long memberId) {
 
         User findUser = userRepository.findByMemberId(memberId);
