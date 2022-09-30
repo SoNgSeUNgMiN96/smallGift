@@ -8,3 +8,4 @@ build
 application-real.properties
 application.properties
 build/
+.DS_Store
