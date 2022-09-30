@@ -100,7 +100,7 @@ public class ShopInfoController {
         switch (category){
             case "전체":
                 //locate 설정해야함
-                allShop = shopRepository.findAllByShopAddressLikeLikeOrderByTotalLikeDesc(locate);
+                allShop = shopRepository.findAllByShopAddressLikeOrderByTotalLikeDesc(locate);
                 break;
             default:
                 allShop = shopRepository.findAllByShopAddressLikeAndCategoryLikeOrderByTotalLikeDesc(locate, category);
