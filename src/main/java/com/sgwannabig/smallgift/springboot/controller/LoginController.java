@@ -287,7 +287,7 @@ public class LoginController {
         return responseService.getSingleResult(signupSignupResponseDto);
     }
 
-    @ApiOperation(value = "로컬 로그인", notes = "로컬을 통해 로그인을 진행한다.") // 구현 O
+    @ApiOperation(value = "로컬 로그인", notes = "로컬을 통해 로그인을 진행한다., token Prefix : Bearer ~~ priefix를 지우고 사용해주세요") // 구현 O
     @ApiImplicitParams({
             @ApiImplicitParam(name = "username", value = "아이디", required = true),
             @ApiImplicitParam(name = "password", value = "패스워드", required = true)

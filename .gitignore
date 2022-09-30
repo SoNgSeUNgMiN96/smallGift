@@ -7,6 +7,9 @@
 !src/**/build/
 
 application-real.properties
-application.properties
+application.propertiesD
 application.yaml
 build/
+out/
+build/
+.DS_Storen

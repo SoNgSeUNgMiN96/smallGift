@@ -19,6 +19,9 @@ public class ShopInfoDto {
     @ApiModelProperty(example = "서울 강남구 강남대로9실 22 2층")
     String address;
 
+    @ApiModelProperty(example = "아이스 아메리카노")
+    String mainMenu;
+
     @ApiModelProperty(example = "4")
     long shopId;
 }
