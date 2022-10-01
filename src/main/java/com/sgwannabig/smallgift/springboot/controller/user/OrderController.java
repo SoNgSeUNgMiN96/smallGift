@@ -7,7 +7,6 @@ import com.sgwannabig.smallgift.springboot.repository.*;
 import com.sgwannabig.smallgift.springboot.service.ResponseService;
 import com.sgwannabig.smallgift.springboot.service.result.SingleResult;
 import io.swagger.annotations.*;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -168,7 +167,7 @@ public class OrderController {
             @ApiResponse(code = 500, message = "서버에러"),
     })
     @GetMapping("/order/all")
-    public SingleResult<UserOrderDetailsAllDto> gerAllOrders(@RequestParam long memberId) {
+    public SingleResult<AllOrderDetailsDto> gerAllOrders(@RequestParam long memberId) {
 
         User findUser = userRepository.findByMemberId(memberId);
 
@@ -178,11 +177,11 @@ public class OrderController {
 
         List<OrderDetails> userOrderDetailsList = orderdetailsRepository.findAllByUserId(findUser.getId());
 
-        UserOrderDetailsAllDto userOrderDetailsAllDto = UserOrderDetailsAllDto.builder().userOrderDetailsDtoList(new ArrayList<>()).build();
+        AllOrderDetailsDto allOrderDetailsDto = AllOrderDetailsDto.builder().orderDetailsDtoList(new ArrayList<>()).build();
 
 
         userOrderDetailsList.stream().forEach(orderDetails -> {
-            UserOrderDetailsDto userOrderDetailsDto = UserOrderDetailsDto.builder()
+            OrderDetailsDto userOrderDetailsDto = OrderDetailsDto.builder()
                     .id(orderDetails.getId())
                     .paymentId(orderDetails.getPayment().getId())
                     .productId(orderDetails.getProduct().getId())
@@ -190,20 +189,21 @@ public class OrderController {
                     .productPrice(orderDetails.getProductPrice())
                     .totalAmount(orderDetails.getTotalAmount())
                     .build();
-            userOrderDetailsAllDto.getUserOrderDetailsDtoList().add(userOrderDetailsDto);
+            allOrderDetailsDto.getOrderDetailsDtoList().add(userOrderDetailsDto);
         });
 
 
-        return responseService.getSingleResult(userOrderDetailsAllDto);
+        return responseService.getSingleResult(allOrderDetailsDto);
     }
 
 
     /*
           주문내역의 쿠폰조회
      */
-    @ApiOperation(value = "/order/coupon", notes = "유저의 주문의 쿠폰을 봅니다 ")
+    @ApiOperation(value = "/order/coupon", notes = "유저의 쿠폰을 봅니다 , 해당 맴버아이디와, 해당 orderDetailsId를 통해 조회.")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "orderDetailsId", value = "멤버 아이디", required = true),
+            @ApiImplicitParam(name = "memberId", value = "멤버 아이디", required = true),
+            @ApiImplicitParam(name = "orderDetailsId", value = "orderDetailsId 아이디", required = true)
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "성공"),
@@ -211,7 +211,7 @@ public class OrderController {
             @ApiResponse(code = 500, message = "서버에러"),
     })
     @GetMapping("/order/coupon")
-    public SingleResult<UserOrderDetailsAllDto> getCouponByOrderId(@RequestParam long memberId) {
+    public SingleResult<EcouponDto> getCouponByOrderId(@RequestParam long memberId, @RequestParam long orderDetailsId) {
 
         User findUser = userRepository.findByMemberId(memberId);
 
@@ -219,25 +219,27 @@ public class OrderController {
             return responseService.getfailResult(408, null);
         }
 
-        List<OrderDetails> userOrderDetailsList = orderdetailsRepository.findAllByUserId(findUser.getId());
 
-        UserOrderDetailsAllDto userOrderDetailsAllDto = UserOrderDetailsAllDto.builder().userOrderDetailsDtoList(new ArrayList<>()).build();
+        List<Ecoupon> ecoupons = ecouponRepository.findByUserId(findUser.getId());
 
-
-        userOrderDetailsList.stream().forEach(orderDetails -> {
-            UserOrderDetailsDto userOrderDetailsDto = UserOrderDetailsDto.builder()
-                    .id(orderDetails.getId())
-                    .paymentId(orderDetails.getPayment().getId())
-                    .productId(orderDetails.getProduct().getId())
-                    .quantity(orderDetails.getQuantity())
-                    .productPrice(orderDetails.getProductPrice())
-                    .totalAmount(orderDetails.getTotalAmount())
-                    .build();
-            userOrderDetailsAllDto.getUserOrderDetailsDtoList().add(userOrderDetailsDto);
-        });
+        Optional<Ecoupon> optionalEcoupon = ecoupons.stream().filter(ecoupon -> ecoupon.getOrderDetails().getId() == orderDetailsId).findAny();
 
 
-        return responseService.getSingleResult(userOrderDetailsAllDto);
+        Ecoupon ecouponParse = optionalEcoupon.get();
+
+
+        EcouponDto ecouponDto = EcouponDto.builder()
+                .couponNumber(ecouponParse.getCouponNumber())
+                .expirationTime(ecouponParse.getExpirationTime())
+                .productName(ecouponParse.getProduct().getProductName())
+                .useState(ecouponParse.getUseState())
+                .paymentId(ecouponParse.getPayment().getId())
+                .usedTime(ecouponParse.getUseState().equals("Y") ? ecouponParse.getUsedTime() : null)
+                .build();
+
+
+
+        return responseService.getSingleResult(ecouponDto);
     }
 
 

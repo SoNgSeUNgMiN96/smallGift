@@ -47,6 +47,8 @@ public class OrderDetails {
     private Review review;
 
 
+    @OneToMany(mappedBy = "orderDetails")
+    private List<Ecoupon> ecoupons = new ArrayList<Ecoupon>();
 
 
     //주문한 주문수량

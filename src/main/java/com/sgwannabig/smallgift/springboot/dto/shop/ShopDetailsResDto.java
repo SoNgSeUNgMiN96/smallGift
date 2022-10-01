@@ -15,5 +15,4 @@ import java.util.List;
 public class ShopDetailsResDto {
 
     ShopInfoDetailDto shopInfoDetailDto;
-    List<KeyValueDto<Integer,ProductInfoDto>> shopAllByLocate;
 }
