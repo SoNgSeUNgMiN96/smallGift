@@ -194,19 +194,16 @@ public class ShopInfoController {
             @ApiResponse(code = 500, message = "서버에러"),
     })
     @GetMapping("shop/details")
-    public SingleResult<ShopDetailsResDto> shopInfoAll(@RequestParam("shopId") long shopId){
+    public SingleResult<ShopInfoDetailDto> shopInfoAll(@RequestParam("shopId") long shopId){
 
         Optional<Shop> shopOptional = shopRepository.findById(shopId);
-        ShopDetailsResDto shopDetailsResDto = new ShopDetailsResDto();
-        shopDetailsResDto.setShopAllByLocate(new ArrayList<>());
+        ShopInfoDetailDto shopDetailsResDto = null;
 
-        AtomicReference<SingleResult<ShopDetailsResDto>> singleResult = null;
+        AtomicReference<SingleResult<ShopInfoDetailDto>> singleResult = null;
 
         shopOptional.ifPresentOrElse(shop -> {
 
-            Optional<List<Product>> allByShopId = productRepository.findAllByShopId(shop.getId());
-
-            shopDetailsResDto.setShopInfoDetailDto(ShopInfoDetailDto.builder()
+            shopDetailsResDto.builder()
                     .businessHours(shop.getBusinessHours())
                     .createShopDate(shop.getCreateShopDate())
                     .id(shop.getId())
@@ -215,27 +212,8 @@ public class ShopInfoController {
                     .shopTelephone(shop.getShopTelephone())
                     .mainMenu(shop.getMainMenu())
                     .category(shop.getCategory())
-                    .build());
+                    .build();
 
-
-            allByShopId.ifPresent( shopList ->{
-
-                IntStream.range(0, shopList.size()).forEach(i -> {
-                    Product product = shopList.get(i);
-                    shopDetailsResDto.getShopAllByLocate().add(new KeyValueDto<>(i, ProductInfoDto.builder()
-                            .category(product.getCategory())
-                            .createDate(product.getCreateDate())
-                            .discountPrice(product.getDiscountPrice())
-                            .endDate(product.getEndDate())
-                            .id(product.getId())
-                            .productName(product.getProductName())
-                            .productPrice(product.getProductPrice())
-                            .productStock(product.getProductStock())
-                            .status(product.getStatus())
-                            .startDate(product.getStartDate())
-                            .build()));
-                });
-            });
             singleResult.set(responseService.getSingleResult(shopDetailsResDto));
 
         }, () -> {

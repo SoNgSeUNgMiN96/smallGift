@@ -23,13 +23,18 @@ public class Ecoupon extends BaseTimeEntity{
     //Ecoupon 아이디.
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "orderdetails_id")
+    @Column(name = "ecouponId")
     private long id;
 
     //어떤 상품을 샀는지 (동일 상품을 다음에 또 주문할 수 있음.)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
+
+    //어떤 상품을 샀는지 (동일 상품을 다음에 또 주문할 수 있음.)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "orderdetails_id")
+    private OrderDetails orderDetails;
 
     //누가 샀는지.
     @ManyToOne(fetch = FetchType.LAZY)

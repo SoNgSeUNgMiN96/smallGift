@@ -1,5 +1,6 @@
 package com.sgwannabig.smallgift.springboot.dto.order;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +12,6 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserOrderDetailsAllDto {
-
-    List<UserOrderDetailsDto> userOrderDetailsDtoList;
+public class AllOrderDetailsDto {
+    List<OrderDetailsDto> orderDetailsDtoList;
 }
