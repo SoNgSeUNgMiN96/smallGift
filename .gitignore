@@ -1,0 +1,15 @@
+# Project exclude paths
+/.gradle/
+/.idea
+/.idea/
+.gradle
+**/build/
+!src/**/build/
+
+application-real.properties
+application.propertiesD
+application.yaml
+build/
+out/
+build/
+.DS_Storen
