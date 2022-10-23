@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Value
 public class RegistManagerCommand {
+
   private Manager manager;
   private MultipartFile businessRegistration;
   private MultipartFile mailOrderSalesRegistration;

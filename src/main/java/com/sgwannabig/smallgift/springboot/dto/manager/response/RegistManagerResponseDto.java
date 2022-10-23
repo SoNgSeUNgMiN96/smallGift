@@ -6,9 +6,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class RegistManagerResponseDto {
-  Long id;
 
-  public RegistManagerResponseDto(Long id) {
-    this.id = id;
+  Long managerId;
+  Long shopId;
+
+  public RegistManagerResponseDto(Long managerId, Long shopId) {
+    this.managerId = managerId;
+    this.shopId = shopId;
   }
+
 }

@@ -1,10 +1,15 @@
 package com.sgwannabig.smallgift.springboot.config;
 
 import com.google.common.collect.Lists;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import java.util.Collections;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.builders.RequestParameterBuilder;
+import springfox.documentation.schema.ScalarType;
 import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
@@ -15,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
-@EnableSwagger2
 public class SwaggerConfig {
     private String version;
     private String title;
@@ -24,7 +28,7 @@ public class SwaggerConfig {
     public Docket apiV1() {
         version = "USER";
         title = "REST API ";
-        return new Docket(DocumentationType.SWAGGER_2)
+        return new Docket(DocumentationType.OAS_30)
                 .useDefaultResponseMessages(false)
                 .groupName(version)
                 .select()
@@ -39,7 +43,7 @@ public class SwaggerConfig {
     public Docket apiV2() {
         version = "MANAGER";
         title = "REST API ";
-        return new Docket(DocumentationType.SWAGGER_2)
+        return new Docket(DocumentationType.OAS_30)
                 .useDefaultResponseMessages(false)
                 .groupName(version)
                 .select()
@@ -47,6 +51,20 @@ public class SwaggerConfig {
                 .paths(PathSelectors.ant("/api/manager/**"))
                 .build()
                 .apiInfo(apiInfo(title, version));
+    }
+
+    @Bean
+    public Docket apiV3() {
+        version = "PRODUCT";
+        title = "REST API ";
+        return new Docket(DocumentationType.OAS_30)
+            .useDefaultResponseMessages(false)
+            .groupName(version)
+            .select()
+            .apis(RequestHandlerSelectors.basePackage("com.sgwannabig.smallgift.springboot.controller"))
+            .paths(PathSelectors.ant("/api/**/products/**"))
+            .build()
+            .apiInfo(apiInfo(title, version));
     }
 
     private ApiInfo apiInfo(String title, String version) {
@@ -64,6 +82,8 @@ public class SwaggerConfig {
     private ApiKey apiKey() {
         return new ApiKey("JWT","JWT" , "header");
     }
+
+
     private SecurityContext securityContext() {
         return SecurityContext.builder().securityReferences(defaultAuth()).forPaths(PathSelectors.any()).build();
     }

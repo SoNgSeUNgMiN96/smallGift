@@ -7,7 +7,7 @@
 !src/**/build/
 
 application-real.properties
-application.propertiesD
+application.properties
 application.yaml
 build/
 out/
