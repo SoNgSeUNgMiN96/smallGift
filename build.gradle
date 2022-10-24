@@ -20,8 +20,8 @@ dependencies {
     implementation "javax.xml.bind:jaxb-api"
 
     //swagger 추가
-    implementation 'io.springfox:springfox-swagger2:2.9.2'
-    implementation 'io.springfox:springfox-swagger-ui:2.9.2'
+    //implementation 'io.springfox:springfox-swagger2:2.9.2'
+    implementation 'io.springfox:springfox-swagger-ui:3.0.0'
 
 
     annotationProcessor 'org.projectlombok:lombok:1.18.20'
@@ -38,7 +38,7 @@ dependencies {
 
     implementation 'org.json:json:20190722'
 
-    //implementation 'io.springfox:springfox-boot-starter:3.0.0'
+    implementation 'io.springfox:springfox-boot-starter:3.0.0'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
@@ -54,7 +54,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
     //aws cloud
-    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+    //implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 }
 
 configurations {
