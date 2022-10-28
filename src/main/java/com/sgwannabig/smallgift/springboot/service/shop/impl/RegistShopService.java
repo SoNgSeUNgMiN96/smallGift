@@ -1,6 +1,6 @@
 package com.sgwannabig.smallgift.springboot.service.shop.impl;
 
-import com.sgwannabig.smallgift.springboot.domain.Shop;
+import com.sgwannabig.smallgift.springboot.domain.shop.Shop;
 import com.sgwannabig.smallgift.springboot.repository.ShopRepository;
 import com.sgwannabig.smallgift.springboot.service.shop.RegistShopCommand;
 import com.sgwannabig.smallgift.springboot.service.shop.RegistShopUsecase;

@@ -1,13 +1,12 @@
 package com.sgwannabig.smallgift.springboot.service;
 
-import com.sgwannabig.smallgift.springboot.domain.Product;
+import com.sgwannabig.smallgift.springboot.domain.product.Product;
 import com.sgwannabig.smallgift.springboot.dto.settlement.SalesInfo;
 import com.sgwannabig.smallgift.springboot.dto.settlement.SalesStatusRequestDto;
 import com.sgwannabig.smallgift.springboot.dto.settlement.SalesStatusResponseDto;
 import com.sgwannabig.smallgift.springboot.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;

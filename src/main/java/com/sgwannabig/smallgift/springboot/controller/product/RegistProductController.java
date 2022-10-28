@@ -1,6 +1,6 @@
 package com.sgwannabig.smallgift.springboot.controller.product;
 
-import com.sgwannabig.smallgift.springboot.domain.Product;
+import com.sgwannabig.smallgift.springboot.domain.product.Product;
 import com.sgwannabig.smallgift.springboot.dto.product.request.RegistProductRequestDto;
 import com.sgwannabig.smallgift.springboot.dto.product.response.RegistProductResponseDto;
 import com.sgwannabig.smallgift.springboot.service.ResponseService;

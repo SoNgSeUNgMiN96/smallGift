@@ -1,6 +1,10 @@
-package com.sgwannabig.smallgift.springboot.domain;
+package com.sgwannabig.smallgift.springboot.domain.shop;
 
 
+import com.sgwannabig.smallgift.springboot.domain.BaseTimeEntity;
+import com.sgwannabig.smallgift.springboot.domain.Manager;
+import com.sgwannabig.smallgift.springboot.domain.Review;
+import com.sgwannabig.smallgift.springboot.domain.product.Product;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +19,7 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Shop extends BaseTimeEntity{
+public class Shop extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "shop_Id")

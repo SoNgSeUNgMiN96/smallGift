@@ -1,7 +1,7 @@
 package com.sgwannabig.smallgift.springboot.service.shop;
 
 import com.sgwannabig.smallgift.springboot.domain.Manager;
-import com.sgwannabig.smallgift.springboot.domain.Shop;
+import com.sgwannabig.smallgift.springboot.domain.shop.Shop;
 import lombok.Getter;
 
 @Getter

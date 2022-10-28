@@ -1,7 +1,7 @@
 package com.sgwannabig.smallgift.springboot.service;
 
 import com.sgwannabig.smallgift.springboot.domain.Manager;
-import com.sgwannabig.smallgift.springboot.domain.Product;
+import com.sgwannabig.smallgift.springboot.domain.product.Product;
 import com.sgwannabig.smallgift.springboot.dto.sales.ManagerDto;
 import com.sgwannabig.smallgift.springboot.dto.sales.ProductRequestDto;
 import com.sgwannabig.smallgift.springboot.dto.sales.ShopProductDto;
