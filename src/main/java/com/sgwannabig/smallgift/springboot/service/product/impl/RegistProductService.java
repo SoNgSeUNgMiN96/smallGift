@@ -7,8 +7,11 @@ import com.sgwannabig.smallgift.springboot.repository.ProductRepository;
 import com.sgwannabig.smallgift.springboot.repository.ShopRepository;
 import com.sgwannabig.smallgift.springboot.service.product.RegistProductCommand;
 import com.sgwannabig.smallgift.springboot.service.product.RegistProductUsecase;
+import com.sgwannabig.smallgift.springboot.util.FileDir;
+import com.sgwannabig.smallgift.springboot.util.aws.S3Manager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -16,11 +19,14 @@ public class RegistProductService implements RegistProductUsecase {
 
   private final ProductRepository productRepository;
   private final ShopRepository shopRepository;
+  private final S3Manager s3Manager;
 
   @Override
   public Product apply(RegistProductCommand registProductCommand) {
     Shop shop = findShop(registProductCommand.getShopId());
+    String productImageUrl = s3Manager.uploadFile(registProductCommand.getProductImage(), FileDir.REGIST_PRODUCT);
     Product product = registProductCommand.getProduct();
+    product.setProductImage(productImageUrl);
     product.setShop(shop);
     return productRepository.save(product);
   }

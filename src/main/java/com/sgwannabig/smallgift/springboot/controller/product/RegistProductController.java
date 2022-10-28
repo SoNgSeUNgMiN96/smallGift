@@ -42,15 +42,15 @@ public class RegistProductController {
       @RequestPart MultipartFile productImage) {
 
     Product product = registProductRequestDto.toEntity();
-    product.setProductImage(productImage.getOriginalFilename());
+
     Product registedproduct = registProductUsecase.apply(
-        new RegistProductCommand(shopId, product));
+        new RegistProductCommand(shopId, product, productImage));
 
     URI uri = ServletUriComponentsBuilder.fromCurrentContextPath().path("/{id}")
         .buildAndExpand(product.getId()).toUri();
 
     return ResponseEntity.created(uri)
         .body(responseService.getSingleResult(new RegistProductResponseDto(
-            product.getId())));
+            registedproduct.getId())));
   }
 }
