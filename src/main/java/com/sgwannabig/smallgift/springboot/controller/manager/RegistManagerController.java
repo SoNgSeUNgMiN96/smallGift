@@ -15,6 +15,7 @@ import com.sgwannabig.smallgift.springboot.service.result.SingleResult;
 import com.sgwannabig.smallgift.springboot.service.shop.RegistShopCommand;
 import com.sgwannabig.smallgift.springboot.service.shop.RegistShopUsecase;
 
+import com.sgwannabig.smallgift.springboot.util.aws.S3Manager;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -36,6 +37,7 @@ public class RegistManagerController {
 
   private final RegistManagerUsecase registManagerUsecase;
   private final RegistShopUsecase registShopUsecase;
+  private final S3Manager s3Manager;
   private final ResponseService responseService;
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
