@@ -28,10 +28,12 @@ public class GetAllProductController {
 
 
   @Operation(summary = "전체 상품목록 조회 api", description = "해당 가게의 전체 상품 목록을 조회합니다.")
-  @ApiResponses({@ApiResponse(responseCode = "200", description = "성공"),
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "성공"),
       @ApiResponse(responseCode = "500", description = "서버에러"),
       @ApiResponse(responseCode = "404", description = "존재하지 않는 가게입니다"),
-      @ApiResponse(responseCode = "400", description = "잘못된 요청입니다")})
+      @ApiResponse(responseCode = "400", description = "잘못된 요청입니다")
+  })
   @GetMapping("/{shopId}/products")
   public ResponseEntity<MultipleResult<GetAllProductResponseDto>> getAllProduct(
       @Parameter(description = "가게 ID",required = true)
