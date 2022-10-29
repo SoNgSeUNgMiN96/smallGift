@@ -63,4 +63,10 @@ public class ExceptionAdvice {
     public Result shopNotFoundException(ShopNotFoundException e) {
         return responseService.getFailureResult(40400, e.getMessage());
     }
+
+    @ExceptionHandler(ProductNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Result productNotFoundException(ProductNotFoundException e) {
+        return responseService.getFailureResult(40400, e.getMessage());
+    }
 }

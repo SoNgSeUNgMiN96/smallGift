@@ -32,7 +32,7 @@ public class RegistProductController {
   @PostMapping("/{shopId}/products")
   @ApiOperation(value = "제품 등록", notes = "제품 등록을 하기위한 정보를 보내준다.")
   @ApiResponses({
-      @ApiResponse(code = 200, message = "성공"),
+      @ApiResponse(code = 201, message = "성공"),
       @ApiResponse(code = 500, message = "서버에러"),
       @ApiResponse(code = 404, message = "이미 존재하는 정보입니다."),
       @ApiResponse(code = 400, message = "잘못된 요청입니다")
