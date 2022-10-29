@@ -1,8 +1,8 @@
 package com.sgwannabig.smallgift.springboot.service.product.impl;
 
 import com.sgwannabig.smallgift.springboot.config.advice.exception.ShopNotFoundException;
-import com.sgwannabig.smallgift.springboot.domain.Product;
-import com.sgwannabig.smallgift.springboot.domain.Shop;
+import com.sgwannabig.smallgift.springboot.domain.product.Product;
+import com.sgwannabig.smallgift.springboot.domain.shop.Shop;
 import com.sgwannabig.smallgift.springboot.repository.ProductRepository;
 import com.sgwannabig.smallgift.springboot.repository.ShopRepository;
 import com.sgwannabig.smallgift.springboot.service.product.RegistProductCommand;

@@ -1,16 +1,10 @@
 package com.sgwannabig.smallgift.springboot.dto.order;
 
-import com.sgwannabig.smallgift.springboot.domain.Payment;
-import com.sgwannabig.smallgift.springboot.domain.Product;
-import com.sgwannabig.smallgift.springboot.domain.Review;
-import com.sgwannabig.smallgift.springboot.domain.User;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import javax.persistence.*;
 
 @Data
 @NoArgsConstructor

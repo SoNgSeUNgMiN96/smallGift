@@ -1,9 +1,7 @@
 package com.sgwannabig.smallgift.springboot.service;
 
-import com.sgwannabig.smallgift.springboot.domain.Product;
 import com.sgwannabig.smallgift.springboot.domain.Review;
 import com.sgwannabig.smallgift.springboot.dto.review.ReviewResponseDto;
-import com.sgwannabig.smallgift.springboot.dto.sales.ShopProductDto;
 import com.sgwannabig.smallgift.springboot.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

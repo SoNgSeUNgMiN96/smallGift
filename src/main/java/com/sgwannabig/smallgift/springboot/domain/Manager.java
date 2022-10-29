@@ -1,6 +1,6 @@
 package com.sgwannabig.smallgift.springboot.domain;
 
-import com.sun.istack.NotNull;
+import com.sgwannabig.smallgift.springboot.domain.shop.Shop;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

@@ -1,7 +1,9 @@
-package com.sgwannabig.smallgift.springboot.domain;
+package com.sgwannabig.smallgift.springboot.domain.product;
 
+import com.sgwannabig.smallgift.springboot.domain.OrderDetails;
+import com.sgwannabig.smallgift.springboot.domain.Review;
+import com.sgwannabig.smallgift.springboot.domain.shop.Shop;
 import com.sun.istack.NotNull;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
 
@@ -65,6 +67,9 @@ public class Product{
   @NotNull
   private String endDate;
 
+  @Enumerated(EnumType.STRING)
+  private ProductStatus productStatus;
+
   //메뉴가 받은 총 좋아요 수
   @Column(nullable = false)
   long likeCount;
@@ -74,7 +79,7 @@ public class Product{
       String category, String productName, int productPrice, int discountPrice, long productStock,
       String productImage, String productContent, int status, String productBuyer,
       String createDate,
-      String startDate, String endDate, long likeCount) {
+      String startDate, String endDate, long likeCount, ProductStatus productStatus) {
     this.id = id;
     this.shop = shop;
     this.review = review;
@@ -92,5 +97,6 @@ public class Product{
     this.startDate = startDate;
     this.endDate = endDate;
     this.likeCount = likeCount;
+    this.productStatus = productStatus;
   }
 }

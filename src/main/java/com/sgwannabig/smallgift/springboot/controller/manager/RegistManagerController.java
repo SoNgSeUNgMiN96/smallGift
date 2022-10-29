@@ -2,10 +2,9 @@ package com.sgwannabig.smallgift.springboot.controller.manager;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.Claim;
 import com.sgwannabig.smallgift.springboot.config.jwt.JwtProperties;
 import com.sgwannabig.smallgift.springboot.domain.Manager;
-import com.sgwannabig.smallgift.springboot.domain.Shop;
+import com.sgwannabig.smallgift.springboot.domain.shop.Shop;
 import com.sgwannabig.smallgift.springboot.dto.manager.request.RegistManagerDto;
 import com.sgwannabig.smallgift.springboot.dto.manager.response.RegistManagerResponseDto;
 import com.sgwannabig.smallgift.springboot.service.ResponseService;

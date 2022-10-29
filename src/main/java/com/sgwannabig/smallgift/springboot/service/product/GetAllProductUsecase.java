@@ -1,8 +1,8 @@
 package com.sgwannabig.smallgift.springboot.service.product;
 
 import com.sgwannabig.smallgift.springboot.domain.product.Product;
-import java.util.function.Function;
+import java.util.List;
 
-public interface RegistProductUsecase extends Function<RegistProductCommand, Product> {
-
+public interface GetAllProductUsecase {
+  List<Product> getAllProduct(Long shopId);
 }

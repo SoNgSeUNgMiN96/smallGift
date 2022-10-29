@@ -1,10 +1,9 @@
 package com.sgwannabig.smallgift.springboot.dto.product.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.sgwannabig.smallgift.springboot.domain.Product;
+import com.sgwannabig.smallgift.springboot.domain.product.Product;
+import com.sgwannabig.smallgift.springboot.domain.product.ProductStatus;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiParam;
-import java.time.LocalDate;
 import lombok.Getter;
 
 @Getter
@@ -47,6 +46,7 @@ public class RegistProductRequestDto {
         .productPrice(productPrice)
         .productStock(productStock)
         .productContent(productContent)
+        .productStatus(ProductStatus.SOLD_OUT)
         .status(1)
         .startDate(startDate)
         .endDate(endDate)
