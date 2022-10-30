@@ -1,6 +1,6 @@
 package com.sgwannabig.smallgift.springboot.domain;
 
-import com.sun.istack.NotNull;
+import com.sgwannabig.smallgift.springboot.domain.shop.Shop;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -30,7 +30,7 @@ public class Manager extends BaseTimeEntity {
   @OneToMany(mappedBy = "manager")
   private List<SettlementDetails> settlementDetails = new ArrayList<SettlementDetails>();
 
-    private Long userId;
+  private Long userId;
 
   @Column(nullable = false)
   private String username;

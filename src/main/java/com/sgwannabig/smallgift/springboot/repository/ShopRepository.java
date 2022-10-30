@@ -1,7 +1,6 @@
 package com.sgwannabig.smallgift.springboot.repository;
 
-import com.sgwannabig.smallgift.springboot.domain.Member;
-import com.sgwannabig.smallgift.springboot.domain.Shop;
+import com.sgwannabig.smallgift.springboot.domain.shop.Shop;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

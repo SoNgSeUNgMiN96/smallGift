@@ -1,8 +1,8 @@
 package com.sgwannabig.smallgift.springboot.controller.user;
 
 
-import com.sgwannabig.smallgift.springboot.domain.Product;
-import com.sgwannabig.smallgift.springboot.domain.Shop;
+import com.sgwannabig.smallgift.springboot.domain.product.Product;
+import com.sgwannabig.smallgift.springboot.domain.shop.Shop;
 import com.sgwannabig.smallgift.springboot.domain.User;
 import com.sgwannabig.smallgift.springboot.domain.WishList;
 import com.sgwannabig.smallgift.springboot.dto.KeyValueDto;

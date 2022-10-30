@@ -1,7 +1,14 @@
-package com.sgwannabig.smallgift.springboot.domain;
+package com.sgwannabig.smallgift.springboot.domain.shop;
 
 
+import com.sgwannabig.smallgift.springboot.domain.BaseTimeEntity;
+import com.sgwannabig.smallgift.springboot.domain.Manager;
+import com.sgwannabig.smallgift.springboot.domain.Review;
+import com.sgwannabig.smallgift.springboot.domain.product.Product;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
@@ -11,9 +18,10 @@ import java.util.List;
 
 @Entity
 @Data
-public class Shop extends BaseTimeEntity{
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Shop extends BaseTimeEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "shop_Id")
     private long id;
 
@@ -30,6 +38,25 @@ public class Shop extends BaseTimeEntity{
     @OneToMany(mappedBy = "shop")
     private List<Review> review = new ArrayList<Review>();
 
+    @Builder
+    public Shop(long id, Manager manager, List<Product> products, List<Review> review,
+        String category,
+        String shopName, String shopAddress, String shopTelephone, boolean isAllowed,
+        LocalDateTime createShopDate, String mainMenu, String businessHours, long totalLike) {
+        this.id = id;
+        this.manager = manager;
+        this.products = products;
+        this.review = review;
+        this.category = category;
+        this.shopName = shopName;
+        this.shopAddress = shopAddress;
+        this.shopTelephone = shopTelephone;
+        this.isAllowed = isAllowed;
+        this.createShopDate = createShopDate;
+        this.mainMenu = mainMenu;
+        this.businessHours = businessHours;
+        this.totalLike = totalLike;
+    }
 
     //카테고리를 저장한다.
     String category;

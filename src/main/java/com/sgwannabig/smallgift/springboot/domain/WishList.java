@@ -1,6 +1,7 @@
 package com.sgwannabig.smallgift.springboot.domain;
 
 
+import com.sgwannabig.smallgift.springboot.domain.product.Product;
 import lombok.Data;
 
 import javax.persistence.*;
