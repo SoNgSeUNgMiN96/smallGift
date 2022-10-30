@@ -24,22 +24,22 @@ public class EcouponDto {
     private long id;
     //어떤 상품을 샀는지 (동일 상품을 다음에 또 주문할 수 있음.)
 
-    @ApiModelProperty(example = "아이스 아메리카노")
+    @ApiModelProperty(name = "productName",value = "상품명",example = "아이스 아메리카노",dataType = "String")
     String productName;
 
 
     //주문내역을 근거할 결제번호.
-    @ApiModelProperty(example = "1021623")
+    @ApiModelProperty(name = "paymentId",dataType = "long",example = "1021623")
     private long paymentId;
 
 
     //이건 테스팅 해봐야함. 사용여부를 enum으로 받는다.   Y, N, R 값만 갖도록 함       //사용, 미사용, 환불  <- enum호환성때문에 그냥 로직으로 구분하기.
-    @ApiModelProperty(example = "Y")
+    @ApiModelProperty(example = "Y", dataType = "String")
     private String useState;
 
 
     //생성된 쿠폰번호.
-    @ApiModelProperty(example = "100352432")
+    @ApiModelProperty(example = "100352432", dataType = "String")
     private String couponNumber;
 
     //사용기한.
