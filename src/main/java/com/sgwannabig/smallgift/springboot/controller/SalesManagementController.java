@@ -1,28 +1,20 @@
 package com.sgwannabig.smallgift.springboot.controller;
 
 import com.sgwannabig.smallgift.springboot.domain.Manager;
-import com.sgwannabig.smallgift.springboot.domain.Product;
+import com.sgwannabig.smallgift.springboot.domain.product.Product;
 import com.sgwannabig.smallgift.springboot.dto.sales.*;
 import com.sgwannabig.smallgift.springboot.repository.ManagerRepository;
-import com.sgwannabig.smallgift.springboot.repository.ProductRepository;
 import com.sgwannabig.smallgift.springboot.service.SalesManagementService;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.util.UriUtils;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.NoSuchElementException;
 

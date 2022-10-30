@@ -1,8 +1,8 @@
 package com.sgwannabig.smallgift.springboot.controller.user;
 
 
-import com.sgwannabig.smallgift.springboot.domain.Product;
-import com.sgwannabig.smallgift.springboot.domain.Shop;
+import com.sgwannabig.smallgift.springboot.domain.product.Product;
+import com.sgwannabig.smallgift.springboot.domain.shop.Shop;
 import com.sgwannabig.smallgift.springboot.dto.KeyValueDto;
 import com.sgwannabig.smallgift.springboot.dto.shop.*;
 import com.sgwannabig.smallgift.springboot.repository.ProductRepository;
@@ -37,7 +37,11 @@ public class ShopInfoController {
     @Autowired
     private final ProductRepository productRepository;
 
-    @ApiOperation(value = "shop/info/all/locate", notes = "가게를 지역 단위로 보내준다. <- 서울 특별시 마포구 등으로 해서 넣어줘야함. 메인페이지에 지역 설정해서 추천 나오는 부분에 활용하면될듯")
+
+
+
+    //메인페이지 지역별 추천 메뉴로 바꿔야할듯
+    @ApiOperation(value = "shop/info/all/locate", notes = "가게를 지역 단위로 보내준다. <- 서울 특별시 마포구 등으로 해서 넣어줘야함. 메인페이지에 지역별 추천메뉴")
     @ApiImplicitParams({
             @ApiImplicitParam(name="locate", value ="지역", required = true),
     })
@@ -46,41 +50,49 @@ public class ShopInfoController {
             @ApiResponse(code = 500, message = "서버에러"),
     })
     @GetMapping("shop/info/all/locate")
-    public SingleResult<ShopAllByLocateResDto> allShopByLocate(@RequestParam("locate") String locate){
+    public SingleResult<MenuRandomByLocateResDto> allShopByLocate(@RequestParam("locate") String locate){
 
         List<Shop> allShopByLocate = shopRepository.findAllByShopAddressLike("%" + locate + "%");
 
-        ShopAllByLocateResDto shopAllByLocateResDto = new ShopAllByLocateResDto(new ArrayList<>(),1);
+        MenuRandomByLocateResDto menuRandomByLocateResDto = new MenuRandomByLocateResDto(new ArrayList<>());
 
 
 
         if(allShopByLocate==null){
-            return  responseService.getSingleResult(shopAllByLocateResDto);
+            return  responseService.getSingleResult(menuRandomByLocateResDto);
         }
 
 
         IntStream.range(0,allShopByLocate.size()).forEach(i->{
             Shop shop = allShopByLocate.get(i);
 
-            ShopInfoDto shopInfoDto = ShopInfoDto.builder()
-                    .address(shop.getShopAddress())
-                    .mainMenu(shop.getMainMenu())
-                    .shopId(shop.getId())
-                    .category(shop.getCategory())
-                    .shopName(shop.getShopName())
-                    .build();
+            List<Product> allMenuByShop = productRepository.findAllByShopId(shop.getId()).get();
 
-            shopAllByLocateResDto.getShopAllByLocate().add(new KeyValueDto<>(i, shopInfoDto));
+            if(allMenuByShop!=null) {
+                Collections.shuffle(allMenuByShop);
+
+                Product product = allMenuByShop.get(0);
+
+                //가게이름, 상품이름, 가격, 할인가, 할인율
+
+                RandomMenuDto randomMenuDto = RandomMenuDto.builder()
+                        .shopName(shop.getShopName())
+                        .discountPrice(product.getDiscountPrice())
+                        .price(product.getProductPrice())
+                        .discountRate(product.getDiscountPrice()/(double)product.getProductPrice())
+                        .build();
+
+                menuRandomByLocateResDto.getMenuRandomByLocateResDto().add(new KeyValueDto<>(i, randomMenuDto));
+            }
         });
 
-        //원본 섞기인지 리턴인지 확인해야함
-        Collections.shuffle(shopAllByLocateResDto.getShopAllByLocate());
-
-        return responseService.getSingleResult(shopAllByLocateResDto);
+        return responseService.getSingleResult(menuRandomByLocateResDto);
     }
 
 
-    @ApiOperation(value = "shop/info/all/locate/category", notes = "근처 가게를 보내준다. locate에 지역을 넣어주고,  category에 전체, 한식, 일식, 중식, 양식, 카페 등을 설정하고, page에 페이지번호, pagePerCount에 페이지당 요청수를 넣어준다. ")
+
+
+    @ApiOperation(value = "shop/info/all/locate/category", notes = "근처 가게를 보내준다. locate에 지역을 넣어주고,  category에 전체, 한식, 일식, 중식, 양식, 카페 등을 설정하고, page에 페이지번호, pagePerCount에 페이지당 요청수를 넣어준다. <<카테고리 탐색 페이지")
     @ApiImplicitParams({
             @ApiImplicitParam(name="locate", value ="지역", required = true),
             @ApiImplicitParam(name="category", value ="카테고리", required = true),
@@ -94,7 +106,7 @@ public class ShopInfoController {
     @GetMapping("shop/info/all/locate/category")
     public SingleResult<ShopAllByLocateResDto> allShop(@RequestParam("locate") String locate,@RequestParam("category") String category, @RequestParam("page")  int page, @RequestParam("pagePerCount")  int pagePerCount ){
 
-        List<Shop> allShop = shopRepository.findAll();
+        List<Shop> allShop, allshopSub;
 
 
         switch (category){
@@ -102,8 +114,10 @@ public class ShopInfoController {
                 //locate 설정해야함
                 allShop = shopRepository.findAllByShopAddressLikeOrderByTotalLikeDesc(locate);
                 break;
+
             default:
                 allShop = shopRepository.findAllByShopAddressLikeAndCategoryLikeOrderByTotalLikeDesc(locate, category);
+
                 break;
         }
 
@@ -116,14 +130,12 @@ public class ShopInfoController {
         int end = page * pagePerCount, start = (page - 1) * pagePerCount;
 
 
-
         ShopAllByLocateResDto shopAllByLocateResDto = new ShopAllByLocateResDto(new ArrayList<>(), page);
 
 
         if(allShop==null){
             return  responseService.getSingleResult(shopAllByLocateResDto);
         }
-
 
         List<Shop> finalAllShop = allShop.subList(start,end);
 
@@ -146,7 +158,9 @@ public class ShopInfoController {
 
 
 
-    @ApiOperation(value = "shop/info/best", notes = "지역(서울시 강남구 역삼동 등 주소를 넣어주면 됨.)별 인기 가게 3개를 보여준다. (찜 총 갯수 기준)")
+
+    //지역별 인기 상점 . 서울/경기 수정완료
+    @ApiOperation(value = "shop/info/best", notes = "지역(서울시 강남구 역삼동 등 주소를 넣어주면 됨.)별 인기 가게 3개를 보여준다. (찜 총 갯수 기준) <<메인페이지 하단  ")
     @ApiImplicitParams({
             @ApiImplicitParam(name="locate", value ="지역", required = true),
     })
@@ -158,17 +172,41 @@ public class ShopInfoController {
     @GetMapping("shop/info/best")
     public SingleResult<ShopBestByLocateResDto> bestShopByLocate(@RequestParam("locate") String locate) {
 
-        List<Shop> topShopByLocate = shopRepository.findTop3ByShopAddressLikeOrderByTotalLikeDesc("%" + locate + "%");
+        List<Shop> topShopByLocate;
+
+        if(locate.equals("서울/경기")){
+            topShopByLocate = shopRepository.findTop3ByShopAddressLikeOrderByTotalLikeDesc("%서울%");
+            List<Shop> bestSub = shopRepository.findTop3ByShopAddressLikeOrderByTotalLikeDesc("%경기%");
+            topShopByLocate.addAll(bestSub);
+
+            topShopByLocate.sort((s1,s2)->{
+                return (int) (s2.getTotalLike() - s1.getTotalLike());
+            });
+
+
+
+            topShopByLocate = topShopByLocate.subList(0, topShopByLocate.size()>3? 3 : topShopByLocate.size() );
+
+
+        }else{
+            topShopByLocate = shopRepository.findTop3ByShopAddressLikeOrderByTotalLikeDesc("%" + locate + "%");
+        }
+
+
+
 
         ShopBestByLocateResDto shopBestByLocateResDto = new ShopBestByLocateResDto(new ArrayList<>());
+
 
 
         if(topShopByLocate==null){
             return  responseService.getSingleResult(shopBestByLocateResDto);
         }
 
+        List<Shop> finalTopShopByLocate = topShopByLocate;
+
         IntStream.range(0,topShopByLocate.size()).forEach(i->{
-            Shop shop = topShopByLocate.get(i);
+            Shop shop = finalTopShopByLocate.get(i);
             ShopInfoDto shopInfoDto = ShopInfoDto.builder()
                     .address(shop.getShopAddress())
                     .shopId(shop.getId())
@@ -179,9 +217,11 @@ public class ShopInfoController {
             shopBestByLocateResDto.getTopShopByLocate().add(new KeyValueDto<>(i, shopInfoDto));
         });
 
-
         return responseService.getSingleResult(shopBestByLocateResDto);
     }
+
+
+
 
 
     @ApiOperation(value = "shop/details", notes = "선택한 가게의 모든 정보를 보내준다. 가게 운영시간 포함")

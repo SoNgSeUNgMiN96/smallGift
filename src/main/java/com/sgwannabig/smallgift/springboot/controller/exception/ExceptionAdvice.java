@@ -57,4 +57,16 @@ public class ExceptionAdvice {
     public Result emailAuthTokenNotFountException() {
         return responseService.getFailureResult(-106, "유효하지 않은 인증요청입니다.");
     }
+
+    @ExceptionHandler(ShopNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Result shopNotFoundException(ShopNotFoundException e) {
+        return responseService.getFailureResult(40400, e.getMessage());
+    }
+
+    @ExceptionHandler(ProductNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Result productNotFoundException(ProductNotFoundException e) {
+        return responseService.getFailureResult(40400, e.getMessage());
+    }
 }

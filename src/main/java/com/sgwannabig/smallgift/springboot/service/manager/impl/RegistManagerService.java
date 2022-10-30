@@ -18,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class RegistManagerService implements RegistManagerUsecase {
 
   private final S3Manager s3Manager;
-  private final MultiPartUtil multiPartUtil;
   private final ManagerRepository managerRepository;
 
   @Override
@@ -30,6 +29,7 @@ public class RegistManagerService implements RegistManagerUsecase {
     String mailOrderSalesRegistrationUrl = getUploadFileUrl(mailOrderSalesRegistration,
         FileDir.REGIST_MANAGER);
 
+
     Manager manager = registManagerCommand.getManager();
 
     manager.setBusinessRegistration(businessRegistrationUrl);
@@ -39,7 +39,6 @@ public class RegistManagerService implements RegistManagerUsecase {
   }
 
   private String getUploadFileUrl(MultipartFile file, FileDir fileDir) {
-    return s3Manager.uploadFile(file, multiPartUtil.setObjectMetaData(file),
-        multiPartUtil.createFilePath(fileDir, file.getContentType()));
+    return s3Manager.uploadFile(file, fileDir);
   }
 }

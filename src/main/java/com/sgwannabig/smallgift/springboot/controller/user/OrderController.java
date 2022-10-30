@@ -2,6 +2,7 @@ package com.sgwannabig.smallgift.springboot.controller.user;
 
 
 import com.sgwannabig.smallgift.springboot.domain.*;
+import com.sgwannabig.smallgift.springboot.domain.product.Product;
 import com.sgwannabig.smallgift.springboot.dto.order.*;
 import com.sgwannabig.smallgift.springboot.repository.*;
 import com.sgwannabig.smallgift.springboot.service.ResponseService;
