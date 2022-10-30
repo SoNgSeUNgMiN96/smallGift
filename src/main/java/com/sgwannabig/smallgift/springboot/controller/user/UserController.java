@@ -364,7 +364,7 @@ public class UserController {
         KeywordTopTenDto keywordTopTenDto = KeywordTopTenDto.builder().keywordTopTen(new ArrayList<>()).build();
 
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < ((10>allKeywords.size())?allKeywords.size():10); i++) {
             keywordTopTenDto.getKeywordTopTen().add(new KeyValueDto<Integer,String>(i+1,allKeywords.get(i).getKeyword()));
         }
 

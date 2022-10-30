@@ -2,9 +2,14 @@ package com.sgwannabig.smallgift.springboot.dto.shop;
 
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@Builder
+@AllArgsConstructor
 public class ShopMenuDto {
 
     @ApiModelProperty(example = "23")
