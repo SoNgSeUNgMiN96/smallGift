@@ -22,7 +22,6 @@ public class EcouponDto {
     //Ecoupon 아이디.
     @Id
     private long id;
-
     //어떤 상품을 샀는지 (동일 상품을 다음에 또 주문할 수 있음.)
 
     @ApiModelProperty(example = "아이스 아메리카노")
