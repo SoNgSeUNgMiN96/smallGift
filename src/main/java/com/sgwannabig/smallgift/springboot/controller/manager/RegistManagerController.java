@@ -36,7 +36,6 @@ public class RegistManagerController {
 
   private final RegistManagerUsecase registManagerUsecase;
   private final RegistShopUsecase registShopUsecase;
-  private final S3Manager s3Manager;
   private final ResponseService responseService;
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
