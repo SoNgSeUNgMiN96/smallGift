@@ -1,8 +1,10 @@
+# appspec.yml
+
 version: 0.0
 os: linux
 files:
-  - source: /
-    destination: /home/ec2-user/app/step3/zip/
+  - source:  /
+    destination: /home/ec2-user/app/zip
     overwrite: yes
 
 permissions:
@@ -13,6 +15,6 @@ permissions:
 
 hooks:
   ApplicationStart:
-    - location: deploy.sh
-      timeout: 60
+    - location: scripts/deploy.sh
+      timeout: 360
       runas: ec2-user

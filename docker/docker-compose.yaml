@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+  web-server:
+    image: nginx
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/:/etc/nginx/conf.d/
+  blue:
+    build: .
+    image: smallgift
+    container_name: blue
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./:/home/ubuntu
+    environment:
+      active: blue
+
+  green:
+    build: .
+    image: smallgift
+    container_name: green
+    ports:
+      - "8082:8080"
+    volumes:
+      - ./:/home/ubuntu
+    environment:
+      active: blue
