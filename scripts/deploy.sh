@@ -23,7 +23,7 @@ if [ -z "$RUNNING_APPLICATION"  ];then
 else
 	echo "blue Deploy..."
 	docker compose build blue
-    docker compose up -d blue
+  docker compose up -d blue
 	
 	while [ 1 == 1 ]; do
 		echo "blue health check...."
