@@ -2,6 +2,9 @@
 RUNNING_APPLICATION=$(docker ps | grep blue)
 DEFAULT_CONF="/home/ec2-user/app/zip/nginx/service-url.inc"
 
+REPOSITORY=/home/ec2-user/app/zip
+cd $REPOSITORY
+
 if [ -n "$RUNNING_APPLICATION"  ];then
 	echo "green Deploy..."
 	docker-compose build green
