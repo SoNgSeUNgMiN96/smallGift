@@ -10,7 +10,7 @@ services:
     volumes:
       - ./nginx/:/etc/nginx/conf.d/
   blue:
-    build: docker
+    build: .
     image: blue
     container_name: blue
     ports:
@@ -22,7 +22,7 @@ services:
       active: blue
 
   green:
-    build: docker
+    build: .
     image: green
     container_name: green
     ports:
