@@ -4,7 +4,6 @@ services:
   web-server:
     image: nginx
     container_name: nginx
-    restart: always
     ports:
       - "80:80"
     volumes:
