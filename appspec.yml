@@ -4,17 +4,17 @@ version: 0.0
 os: linux
 files:
   - source:  /
-    destination: /home/ubuntu/app/zip
+    destination: /home/ec2-user/app/zip
     overwrite: yes
 
 permissions:
   - object: /
     pattern: "**"
-    owner: ubuntu
-    group: ubuntu
+    owner: ec2-user
+    group: ec2-user
 
 hooks:
   ApplicationStart:
     - location: scripts/deploy.sh
       timeout: 360
-      runas: ubuntu
+      runas: ec2-user
