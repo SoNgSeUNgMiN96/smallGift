@@ -9,7 +9,7 @@ if [ -n "$RUNNING_APPLICATION"  ];then
 
 	while [ 1 == 1 ]; do
 		echo "green health check...."
-		REQUEST=$(docker exec nginx curl http://green:8080)
+		REQUEST=$(docker exec nginx curl http://13.209.78.85:8082)
 		echo $REQUEST
 		if [ -n "$REQUEST" ]; then
 			break ;
@@ -28,7 +28,7 @@ else
 
 	while [ 1 == 1 ]; do
 		echo "blue health check...."
-                REQUEST=$(docker exec nginx curl http://blue:8080)
+                REQUEST=$(docker exec nginx curl http://13.209.78.85:8081)
                 echo $REQUEST
 		if [ -n "$REQUEST" ]; then
             break ;
