@@ -186,7 +186,7 @@ public class LoginController {
 
     @GetMapping("home")
     public String home() {
-        return "<h1>home</h1>";
+        return "<h1>home update</h1>";
     }
 
 
