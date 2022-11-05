@@ -21,7 +21,8 @@ if [ -n "$RUNNING_APPLICATION"  ];then
 	done;
 
 	echo "set \$service_url http://13.209.78.85:8082;" | sudo tee $DEFAULT_CONF
-	docker exec nginx nginx -s reload
+	#docker exec nginx nginx -s reload
+	doker-compose restart web-server
 	docker-compose stop blue
 else
 	echo "blue Deploy..."
@@ -40,6 +41,7 @@ else
     done;
 
 	echo "set \$service_url http://13.209.78.85:8081;" | sudo tee $DEFAULT_CONF
-	docker exec nginx nginx -s reload
+	#docker exec nginx nginx -s reload
+	docker-compose restart web-server
 	docker-compose stop green
 fi
