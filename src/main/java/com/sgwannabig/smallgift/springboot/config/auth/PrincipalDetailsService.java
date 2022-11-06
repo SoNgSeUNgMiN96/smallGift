@@ -21,6 +21,9 @@ public class PrincipalDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         System.out.println("PrincipalDetailsService : 진입");
         Member member = memberRepository.findByUsername(username);
+        if (member == null) {
+            throw new UsernameNotFoundException("해당 유저가 존재하지 않거나 옳바르지 않는 정보입니다");
+        }
 
         // session.setAttribute("loginUser", user);
         return new PrincipalDetails(member);
