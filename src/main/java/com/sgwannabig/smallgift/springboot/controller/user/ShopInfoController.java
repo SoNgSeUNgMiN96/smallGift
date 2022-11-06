@@ -109,18 +109,24 @@ public class ShopInfoController {
         List<Shop> allShop, allshopSub;
 
 
+        String locateQuery;
+        if(locate.equals("")){
+            locateQuery = "%";
+        }else {
+            locateQuery = "%" + locate + "%";
+        }
+
         switch (category){
             case "전체":
                 //locate 설정해야함
-                allShop = shopRepository.findAllByShopAddressLikeOrderByTotalLikeDesc(locate);
+                allShop = shopRepository.findAllByShopAddressLikeOrderByTotalLikeDesc(locateQuery);
                 break;
 
             default:
-                allShop = shopRepository.findAllByShopAddressLikeAndCategoryLikeOrderByTotalLikeDesc(locate, category);
+                allShop = shopRepository.findAllByShopAddressLikeAndCategoryLikeOrderByTotalLikeDesc(locateQuery, category);
 
                 break;
         }
-
 
 
         int maxPage = (int) Math.ceil(allShop.size() / (double) pagePerCount);
@@ -136,6 +142,9 @@ public class ShopInfoController {
         if(allShop==null){
             return  responseService.getSingleResult(shopAllByLocateResDto);
         }
+
+        //최대갯수 예외처리
+        end = (end>allShop.size())? allShop.size() : end;
 
         List<Shop> finalAllShop = allShop.subList(start,end);
 
