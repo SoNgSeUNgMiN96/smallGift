@@ -24,60 +24,60 @@ import java.util.Collections;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
-  @Autowired
-  private MemberRepository memberRepository;
 
-  //@Autowired
-  //private CorsConfig corsConfig;
-
-  @Autowired
-  private RefreshTokenRepository refreshTokenRepository;
+    @Autowired
+    private MemberRepository memberRepository;
 
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(
-        authenticationManager(), refreshTokenRepository, memberRepository);
-    jwtAuthenticationFilter.setRequiresAuthenticationRequestMatcher(
-        new AntPathRequestMatcher("/api/v1/login",
-            "POST")); //login 필터 강제 변경.
+    //@Autowired
+    //private CorsConfig corsConfig;
 
-    http
-        .cors().and()
-        .csrf().disable()
-        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        .and()
-        .formLogin().disable()
-        .httpBasic().disable()
-        .addFilter(jwtAuthenticationFilter)
-        .addFilter(new JwtAuthorizationFilter(authenticationManager(), memberRepository))
-        .authorizeRequests()
-        .antMatchers(HttpMethod.OPTIONS, "**").permitAll()
-        .antMatchers("/api/v1/reissueAccessToken")
-        .permitAll()
-        .antMatchers("/api/v1/oauth/**")
-        .permitAll()
-        .antMatchers("/api/v1/user/common/**")
-        .permitAll()
-        .antMatchers("/api/v1/user/**")
-        .access("hasRole('ROLE_USER')")
-        .antMatchers("/api/v1/admin/**")
-        .access("hasRole('ROLE_ADMIN')")
-        .anyRequest().permitAll();
-  }
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
 
-  //Cors 설정
-  @Bean
-  public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration configuration = new CorsConfiguration();
 
-    configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
-    configuration.addAllowedHeader("*");
-    configuration.addAllowedMethod("*");
-    configuration.setAllowCredentials(true);
 
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", configuration);
-    return source;
-  }
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager(), refreshTokenRepository, memberRepository);
+        jwtAuthenticationFilter.setFilterProcessesUrl("/api/v1/login");
+
+        http
+                .cors().and()
+                .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .formLogin().disable()
+                .httpBasic().disable()
+                .addFilter(jwtAuthenticationFilter)
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(), memberRepository))
+                .authorizeRequests()
+                .antMatchers(HttpMethod.OPTIONS,"**").permitAll()
+                .antMatchers("/api/v1/reissueAccessToken")
+                .permitAll()
+                .antMatchers("/api/v1/oauth/**")
+                .permitAll()
+                .antMatchers("/api/v1/user/common/**")
+                .permitAll()
+                .antMatchers("/api/v1/user/**")
+                .access("hasRole('ROLE_USER')")
+                .antMatchers("/api/v1/admin/**")
+                .access("hasRole('ROLE_ADMIN')")
+                .anyRequest().permitAll();
+    }
+
+    //Cors 설정
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
+        configuration.addAllowedHeader("*");
+        configuration.addAllowedMethod("*");
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 }

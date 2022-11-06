@@ -80,7 +80,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             //response.getWriter().write("아이디가 없음");
         }
 
-
         Authentication authentication =
                 authenticationManager.authenticate(authenticationToken);
 
