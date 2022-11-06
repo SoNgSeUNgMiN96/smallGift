@@ -174,6 +174,8 @@ public class ShopInfoController {
 
         List<Shop> topShopByLocate;
 
+        String query;
+
         if(locate.equals("서울/경기")){
             topShopByLocate = shopRepository.findTop3ByShopAddressLikeOrderByTotalLikeDesc("%서울%");
             List<Shop> bestSub = shopRepository.findTop3ByShopAddressLikeOrderByTotalLikeDesc("%경기%");
@@ -189,7 +191,13 @@ public class ShopInfoController {
 
 
         }else{
-            topShopByLocate = shopRepository.findTop3ByShopAddressLikeOrderByTotalLikeDesc("%" + locate + "%");
+            query = "";
+            if(locate.equals("")){
+                query = "%";
+            }else{
+                query = "%" + locate + "%";
+            }
+            topShopByLocate = shopRepository.findTop3ByShopAddressLikeOrderByTotalLikeDesc(query);
         }
 
 
@@ -237,13 +245,14 @@ public class ShopInfoController {
     public SingleResult<ShopInfoDetailDto> shopInfoAll(@RequestParam("shopId") long shopId){
 
         Optional<Shop> shopOptional = shopRepository.findById(shopId);
-        ShopInfoDetailDto shopDetailsResDto = null;
+        AtomicReference<ShopInfoDetailDto> shopDetailsResDto = new AtomicReference<>();
 
-        AtomicReference<SingleResult<ShopInfoDetailDto>> singleResult = null;
+        AtomicReference<SingleResult<ShopInfoDetailDto>> singleResult = new AtomicReference<>();
+
 
         shopOptional.ifPresentOrElse(shop -> {
 
-            shopDetailsResDto.builder()
+            shopDetailsResDto.set(ShopInfoDetailDto.builder()
                     .businessHours(shop.getBusinessHours())
                     .createShopDate(shop.getCreateShopDate())
                     .id(shop.getId())
@@ -252,16 +261,18 @@ public class ShopInfoController {
                     .shopTelephone(shop.getShopTelephone())
                     .mainMenu(shop.getMainMenu())
                     .category(shop.getCategory())
-                    .build();
+                    .build());
 
-            singleResult.set(responseService.getSingleResult(shopDetailsResDto));
+            singleResult.set(responseService.getSingleResult((shopDetailsResDto.get() == null) ? new ShopInfoDetailDto() :
+                    shopDetailsResDto.get()));
+
 
         }, () -> {
-            singleResult.set(responseService.getfailResult(409, shopDetailsResDto));
+            singleResult.set(responseService.getfailResult(409, new ShopInfoDetailDto()));
         });
-
         return singleResult.get();
     }
+
 
 
     @ApiOperation(value = "shop/menu", notes = "선택한 가게의 모든 메류를 보내준다")
@@ -281,7 +292,7 @@ public class ShopInfoController {
                 .shopAllMenuList(new ArrayList<>()).build();
 
 
-        AtomicReference<SingleResult<ShopAllMenuDto>> singleResult = null;
+        AtomicReference<SingleResult<ShopAllMenuDto>> singleResult = new AtomicReference<>();
 
         shopOptional.ifPresentOrElse(shop -> {
 
