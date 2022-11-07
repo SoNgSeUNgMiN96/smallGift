@@ -1,6 +1,6 @@
 # !/bin/bash
 RUNNING_APPLICATION=$(docker ps | grep blue)
-DEFAULT_CONF="/home/ec2-user/app/zip/nginx/service-url.inc"
+DEFAULT_CONF="/etc/nginx/conf.d/service-url.inc"
 
 REPOSITORY=/home/ec2-user/app/zip
 cd $REPOSITORY
@@ -22,8 +22,8 @@ if [ -n "$RUNNING_APPLICATION"  ];then
 
 	echo "set \$service_url http://13.209.78.85:8082;" | sudo tee $DEFAULT_CONF
 	sleep 5
-	#docker exec nginx nginx -s reload
-	doker-compose restart web-server
+	docker exec nginx nginx -s reload
+	# docker-compose restart web-server
 	docker-compose stop blue
 else
 	echo "blue Deploy..."
@@ -43,7 +43,7 @@ else
 
 	echo "set \$service_url http://13.209.78.85:8081;" | sudo tee $DEFAULT_CONF
 	sleep 5
-	#docker exec nginx nginx -s reload
-	docker-compose restart web-server
+	docker exec nginx nginx -s reload
+	#docker-compose restart web-server
 	docker-compose stop green
 fi
