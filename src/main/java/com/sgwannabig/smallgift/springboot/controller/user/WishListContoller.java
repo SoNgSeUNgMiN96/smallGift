@@ -51,14 +51,17 @@ public class WishListContoller {
 
     @ApiOperation(value = "/wishList", notes = "유저의 찜 목록을 조회합니다.")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "해당 유저를 기준으로 찜 목록 조회", required = true),
+            @ApiImplicitParam(name = "memberId", value = "해당 유저를 기준으로 찜 목록 조회", required = true),
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "성공"),
             @ApiResponse(code = 500, message = "서버에러"),
     })
     @GetMapping("/wishList")
-    public SingleResult<WishListResDto> getWishList(@RequestParam long userId) {
+    public SingleResult<WishListResDto> getWishList(@RequestParam long memberId) {
+
+        User byMemberId = userRepository.findByMemberId(memberId);
+        long userId = byMemberId.getId();
 
         Optional<List<WishList>> wishListByUser = wishListRepository.findByUserId(userId);
 
@@ -97,7 +100,7 @@ public class WishListContoller {
     @ApiOperation(value = "/wishList", notes = "유저의 찜 목록을 추가합니다.")
     @ApiImplicitParams({
 
-            @ApiImplicitParam(name = "userId", value = "해당 유저를 기준으로 찜 생성", required = true),
+            @ApiImplicitParam(name = "memberId", value = "해당 유저를 기준으로 찜 생성", required = true),
             @ApiImplicitParam(name = "productId", value = "해당 상품을 기준으로 찜 생성", required = true),
     })
     @ApiResponses({
@@ -109,10 +112,14 @@ public class WishListContoller {
     @PostMapping("/wishList")
     public SingleResult<String> insertWishList(@RequestBody WishListReqDto wishListReqDto) {
 
-        boolean isExist = wishListRepository.existsByUserIdAndProductId(wishListReqDto.getUserId(), wishListReqDto.getProductId());
+
+        User byMemberId = userRepository.findByMemberId(wishListReqDto.getMemberId());
+        long userId = byMemberId.getId();
+
+        boolean isExist = wishListRepository.existsByUserIdAndProductId(userId, wishListReqDto.getProductId());
 
         Optional<Product> productById = productRepository.findById(wishListReqDto.getProductId());
-        Optional<User> userById = userRepository.findById(wishListReqDto.getUserId());
+        Optional<User> userById = userRepository.findById(userId);
 
 
         SingleResult singleResult = new SingleResult();

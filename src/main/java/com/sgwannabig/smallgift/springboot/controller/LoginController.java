@@ -10,11 +10,9 @@ import com.sgwannabig.smallgift.springboot.config.auth.PrincipalDetails;
 import com.sgwannabig.smallgift.springboot.config.jwt.JwtProperties;
 import com.sgwannabig.smallgift.springboot.domain.Member;
 import com.sgwannabig.smallgift.springboot.domain.OauthToken;
+import com.sgwannabig.smallgift.springboot.domain.Provider;
 import com.sgwannabig.smallgift.springboot.domain.RefreshToken;
-import com.sgwannabig.smallgift.springboot.dto.login.AccessTokenDto;
-import com.sgwannabig.smallgift.springboot.dto.login.JwtDto;
-import com.sgwannabig.smallgift.springboot.dto.login.SignupDto;
-import com.sgwannabig.smallgift.springboot.dto.login.SignupResponseDto;
+import com.sgwannabig.smallgift.springboot.dto.login.*;
 import com.sgwannabig.smallgift.springboot.dto.signup.MemberLoginRequestDto;
 import com.sgwannabig.smallgift.springboot.dto.signup.MemberLoginResponseDto;
 import com.sgwannabig.smallgift.springboot.dto.signup.MemberSocialLoginResponseDto;
@@ -23,6 +21,7 @@ import com.sgwannabig.smallgift.springboot.repository.RefreshTokenRepository;
 import com.sgwannabig.smallgift.springboot.service.MemberService;
 import com.sgwannabig.smallgift.springboot.service.ResponseService;
 import com.sgwannabig.smallgift.springboot.service.UserService;
+import com.sgwannabig.smallgift.springboot.service.result.Result;
 import com.sgwannabig.smallgift.springboot.service.result.SingleResult;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
@@ -194,6 +193,7 @@ public class LoginController {
     // 왜냐하면 @AuthenticationPrincipal은 UserDetailsService에서 리턴될 때 만들어지기 때문이다.
 
     // 유저 혹은 매니저 혹은 어드민이 접근 가능
+    @ApiOperation(value = "", notes = "user 접근권한 확인(Jwt로)")
     @GetMapping("")
     public String user(Authentication authentication) {
         PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
@@ -205,11 +205,11 @@ public class LoginController {
 
     @ApiOperation(value = "signup", notes = "signup API입니다.")
     @ApiImplicitParams({
-            @ApiImplicitParam(name="username", value ="사용자 ID", required = true),
-            @ApiImplicitParam(name="password", value ="비밀번호", required = true),
-            @ApiImplicitParam(name="email", value ="사용자 Email", required = true),
-            @ApiImplicitParam(name="Provider", value ="회원가입 유형(NORMAL, KAKAO, NAVER)", required = true),
-            @ApiImplicitParam(name="Role", value ="권한(ROLE_USER, ROLE_MANAGER)", required = true),
+//            @ApiImplicitParam(name="username", value ="사용자 ID", required = true),
+//            @ApiImplicitParam(name="password", value ="비밀번호", required = true),
+//            @ApiImplicitParam(name="email", value ="사용자 Email", required = true),
+//            @ApiImplicitParam(name="Provider", value ="회원가입 유형(NORMAL, KAKAO, NAVER)", required = true),
+//            @ApiImplicitParam(name="Role", value ="권한(ROLE_USER, ROLE_MANAGER)", required = true),
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "{\n" +
@@ -276,7 +276,7 @@ public class LoginController {
         System.out.println(signupDto);
         member.setRole(signupDto.getRole().name());
         member.setEmail(signupDto.getEmail());
-        member.setProvider(signupDto.getProvider().name());
+        member.setProvider(Provider.NORMAL.name());
 
         memberRepository.save(member);
 
@@ -289,8 +289,8 @@ public class LoginController {
 
     @ApiOperation(value = "로컬 로그인", notes = "로컬을 통해 로그인을 진행한다., token Prefix : Bearer ~~ priefix를 지우고 사용해주세요") // 구현 O
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "username", value = "아이디", required = true),
-            @ApiImplicitParam(name = "password", value = "패스워드", required = true)
+//            @ApiImplicitParam(name = "username", value = "아이디", required = true),
+//            @ApiImplicitParam(name = "password", value = "패스워드", required = true)
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "성공"),
@@ -298,7 +298,7 @@ public class LoginController {
             @ApiResponse(code = 402, message = "비밀번호는영문과 특수문자 숫자를 포함하며 8자 이상이어야 합니다.")
     })
     @GetMapping("/login")
-    public JwtDto loginMember(@RequestBody MemberLoginRequestDto requestDto) {
+    public JwtDto loginMember(@RequestBody LoginRequestDto loginRequestDto) {
         JwtDto responseDto = JwtDto.builder().build();
         return responseDto;
     }
@@ -312,14 +312,19 @@ public class LoginController {
             @ApiResponse(code = 500, message = "서버 에러"),
             @ApiResponse(code = 402, message = "중복된 아이디 입니다.")
     })
-    @PostMapping("/{username}/exists")
-    public String checkIdDuplicate(@PathVariable String username) {
+    @GetMapping("/username/exists")
+    public SingleResult<String> checkIdDuplicate(@RequestParam String username) {
+        SingleResult<String> singleResult = new SingleResult<>();
+        String message = "";
         if (memberService.checkUsernameDuplicate(username)) {
-            return "이미 사용중인 아이디입니다.";
+            message = "이미 사용중인 아이디입니다.";
+            singleResult.setCode(402);
         } else {
-            return "사용할 수 있는 아이디입니다.";
+            message = "사용할 수 있는 아이디입니다.";
+            singleResult.setCode(200);
         }
-        //return ResponseEntity.ok(managerService.checkUsernameDuplicate(username));
+        singleResult.setMsg(message);
+        return singleResult;
     }
 
 
@@ -332,9 +337,11 @@ public class LoginController {
             @ApiResponse(code = 500, message = "서버 에러"),
             @ApiResponse(code = 402, message = "중복된 아이디 입니다.")
     })
-    @PostMapping("/{email}/exists")
-    public ResponseEntity<Boolean> checkEmailDuplicate(@PathVariable String email) throws Exception{
-        return ResponseEntity.ok(memberService.checkEmailDuplicate(email));
+    @GetMapping("/email/exists")
+    public SingleResult<Boolean> checkEmailDuplicate(@RequestParam  String email) throws Exception{
+        SingleResult<Boolean> singleResult = new SingleResult<>();
+        singleResult.setData(memberService.checkEmailDuplicate(email));
+        return singleResult;
     }
 
     @ApiOperation(value = "아이디 찾기", notes = "아이디 찾기를 진행한다.")
@@ -344,13 +351,13 @@ public class LoginController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "아이디 찾기 성공"),
             @ApiResponse(code = 500, message = "서버 에러"),
-            @ApiResponse(code = 402, message = "올바르지 않은 이메일 형식입니다.")
+            @ApiResponse(code = 401, message = "아이디를 찾지 못했습니다.")
     })
     @PostMapping("/find/id")
-    public ResponseEntity<String> findId(@RequestBody String email) {
+    public SingleResult<String> findId(@RequestBody String email) {
         String username = memberService.findId(email);
-        if(username == null) return ResponseEntity.status(HttpStatus.CONFLICT).body("아이디를 찾지 못했습니다.");
-        return ResponseEntity.ok(username);
+        if(username == null) return responseService.getfailResult(401,"아이디를 찾지 못했습니다.");
+        return responseService.getSingleResult("아이디 찾기 성공");
     }
 
     @ApiOperation(value = "비밀번호 찾기", notes = "비밀번호 찾기를 진행한다.")
@@ -398,13 +405,17 @@ public class LoginController {
     }
 
     @ApiOperation(value = "회원탈퇴", notes = "회원탈퇴를 진행한다.") // 구현 O
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "memberId", value = "사용자 아이디(디비상의)", required = true),
+    })
     @ApiResponses({
             @ApiResponse(code = 200, message = "회원 탈퇴 성공"),
             @ApiResponse(code = 500, message = "서버에러"),
             @ApiResponse(code = 401, message = "회원 탈퇴에 실패했습니다."),
     })
-    @DeleteMapping("/delete/{memberId}")
-    public String resign(@PathVariable Long memberId) {
+    @DeleteMapping("/delete")
+    public String resign(@RequestParam Long memberId) {
+
         Optional<Member> member = memberRepository.findById(memberId);
         member.ifPresent(selectMember -> {
             memberRepository.delete(selectMember);
