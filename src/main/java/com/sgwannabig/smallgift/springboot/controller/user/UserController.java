@@ -217,8 +217,8 @@ public class UserController {
 
     @ApiOperation(value = "/keyword", notes = "유저의 키워드를 저장합니다.")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "memberId", value = "유저(맴버) 아이디 (서버에서 보내준 DB상 memberID)", required = true),
-            @ApiImplicitParam(name = "keyword", value = "유저(맴버) 아이디 (서버에서 보내준 DB상 memberID)", required = true),
+            @ApiImplicitParam(name = "memberId", value = "맴버 아이디 (서버에서 보내준 DB상 memberID)", required = true),
+            @ApiImplicitParam(name = "keyword", value = "맴버 아이디 (서버에서 보내준 DB상 memberID)", required = true),
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "성공"),

@@ -195,9 +195,7 @@ public class ShopInfoController {
             });
 
 
-
             topShopByLocate = topShopByLocate.subList(0, topShopByLocate.size()>3? 3 : topShopByLocate.size() );
-
 
         }else{
             query = "";
@@ -210,11 +208,7 @@ public class ShopInfoController {
         }
 
 
-
-
         ShopBestByLocateResDto shopBestByLocateResDto = new ShopBestByLocateResDto(new ArrayList<>());
-
-
 
         if(topShopByLocate==null){
             return  responseService.getSingleResult(shopBestByLocateResDto);
