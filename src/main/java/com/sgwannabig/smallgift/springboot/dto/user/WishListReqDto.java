@@ -8,7 +8,7 @@ import lombok.Data;
 public class WishListReqDto {
 
     @ApiModelProperty("16")
-    long userId;
+    long memberId;
     @ApiModelProperty("125")
     long productId;
 }
