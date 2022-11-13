@@ -69,7 +69,7 @@ public class WishListContoller {
 
         AtomicInteger idx= new AtomicInteger(0);
 
-        AtomicReference<SingleResult<WishListResDto>> singleResult = null;
+        AtomicReference<SingleResult<WishListResDto>> singleResult = new AtomicReference<>();
 
         wishListByUser.ifPresent( wishList -> {
 
@@ -83,6 +83,7 @@ public class WishListContoller {
                             .discountPrice(product.getDiscountPrice())
                             .productName(product.getProductName())
                             .category(product.getCategory())
+                            .productImage(product.getProductImage())
                             .productStock(product.getProductStock())
                             .productPrice(product.getProductPrice())
                             .productId(product.getId())
@@ -159,9 +160,8 @@ public class WishListContoller {
     }
 
 
-    @ApiOperation(value = "/wishList", notes = "유저의 찜 목록을 추가합니다.")
+    @ApiOperation(value = "/wishList", notes = "유저의 찜 목록을 삭제합니다.")
     @ApiImplicitParams({
-
             @ApiImplicitParam(name = "wishListId", value = "해당 찜 삭제", required = true),
     })
     @ApiResponses({
@@ -170,10 +170,14 @@ public class WishListContoller {
             @ApiResponse(code = 500, message = "서버에러"),
     })
     @DeleteMapping("/wishList")
-    public SingleResult<String> deleteWishList(@RequestBody long wishListId) {
+    public SingleResult<String> deleteWishList(@RequestParam long wishListId) {
 
 
         Optional<WishList> wishListById = wishListRepository.findById(wishListId);
+
+        if (wishListById.isEmpty()) {
+            return responseService.getfailResult(409, "해당 찜 Id가 없습니다.");
+        }
 
         //찜 상품을 하나 가져온다.
         Product product = wishListById.get().getProduct();
@@ -195,13 +199,11 @@ public class WishListContoller {
         }
 
 
-        AtomicReference<SingleResult<String>> singleResult = null;
+        AtomicReference<SingleResult<String>> singleResult = new AtomicReference<>();
 
-        wishListById.ifPresentOrElse( wishList -> {
+        wishListById.ifPresent(wishList -> {
             wishListRepository.delete(wishList);
             singleResult.set(responseService.getSingleResult("삭제 성공"));
-        },()->{
-            singleResult.set(responseService.getfailResult(409,"해당 찜이 없습니다."));
         });
 
         return singleResult.get();
