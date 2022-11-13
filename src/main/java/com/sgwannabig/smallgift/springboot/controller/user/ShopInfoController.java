@@ -80,11 +80,16 @@ public class ShopInfoController {
                         .discountPrice(product.getDiscountPrice())
                         .price(product.getProductPrice())
                         .discountRate(product.getDiscountPrice()/(double)product.getProductPrice())
+                        .image(product.getProductImage())
                         .build();
 
                 menuRandomByLocateResDto.getMenuRandomByLocateResDto().add(new KeyValueDto<>(i, randomMenuDto));
             }
         });
+
+        if (menuRandomByLocateResDto.getMenuRandomByLocateResDto().size() > 3) {
+            menuRandomByLocateResDto.setMenuRandomByLocateResDto(menuRandomByLocateResDto.getMenuRandomByLocateResDto().subList(0, 3));
+        }
 
         return responseService.getSingleResult(menuRandomByLocateResDto);
     }
@@ -186,8 +191,8 @@ public class ShopInfoController {
         String query;
 
         if(locate.equals("서울/경기")){
-            topShopByLocate = shopRepository.findTop3ByShopAddressLikeOrderByTotalLikeDesc("%서울%");
-            List<Shop> bestSub = shopRepository.findTop3ByShopAddressLikeOrderByTotalLikeDesc("%경기%");
+            topShopByLocate = shopRepository.findTop4ByShopAddressLikeOrderByTotalLikeDesc("%서울%");
+            List<Shop> bestSub = shopRepository.findTop4ByShopAddressLikeOrderByTotalLikeDesc("%경기%");
             topShopByLocate.addAll(bestSub);
 
             topShopByLocate.sort((s1,s2)->{
@@ -204,7 +209,7 @@ public class ShopInfoController {
             }else{
                 query = "%" + locate + "%";
             }
-            topShopByLocate = shopRepository.findTop3ByShopAddressLikeOrderByTotalLikeDesc(query);
+            topShopByLocate = shopRepository.findTop4ByShopAddressLikeOrderByTotalLikeDesc(query);
         }
 
 
@@ -313,6 +318,7 @@ public class ShopInfoController {
                             .id(product.getId())
                             .productName(product.getProductName())
                             .productPrice(product.getProductPrice())
+                            .productImage(product.getProductImage())
                             .productStock(product.getProductStock())
                             .status(product.getStatus())
                             .startDate(product.getStartDate())

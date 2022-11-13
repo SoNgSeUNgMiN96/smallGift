@@ -17,6 +17,9 @@ public class RandomMenuDto {
     int price;
     @ApiModelProperty(example = "15300")
     int discountPrice;
+
+    @ApiModelProperty(example = "http://sdlkfjwlkejf.sdlkjf")
+    String image;
     @ApiModelProperty(example = "10")
     double discountRate;
 }
