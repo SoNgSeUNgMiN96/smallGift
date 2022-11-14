@@ -1,5 +1,7 @@
 package com.sgwannabig.smallgift.springboot.repository;
 
+import com.sgwannabig.smallgift.springboot.domain.Manager;
+import com.sgwannabig.smallgift.springboot.domain.Member;
 import com.sgwannabig.smallgift.springboot.domain.shop.Shop;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -14,7 +16,7 @@ public interface ShopRepository extends JpaRepository<Shop, Long> {
     //지역을 기준으로 모든 가게를 반환한다.
     List<Shop> findAllByShopAddressLike(String shopAddress);
 
-
+    Optional<Manager> findByManager(Manager manager);
 
     //지역을 기준으로 모든 가게를 반환한다.
     List<Shop> findAllByShopAddressLikeOrderByTotalLikeDesc(String shopAddress);

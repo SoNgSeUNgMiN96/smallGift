@@ -68,7 +68,7 @@ public class RegistManagerController {
             mailOrderSalesRegistration));
     Shop shop = registShopUsecase.apply(new RegistShopCommand(manager));
 
-    return ResponseEntity.ok(responseService.getSingleResult(
-        new RegistManagerResponseDto(manager.getId(), shop.getId())));
+    return ResponseEntity.ok(
+        responseService.getSingleResult(RegistManagerResponseDto.createDto(manager)));
   }
 }
