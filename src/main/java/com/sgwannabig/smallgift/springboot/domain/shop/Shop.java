@@ -25,7 +25,7 @@ public class Shop extends BaseTimeEntity {
     @Column(name = "shop_Id")
     private long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manager_id")
     private Manager manager;
 
