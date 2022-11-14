@@ -1,11 +1,11 @@
 package com.sgwannabig.smallgift.springboot.service.manager.impl;
 
+import com.sgwannabig.smallgift.springboot.config.advice.exception.ManagerExistedException;
 import com.sgwannabig.smallgift.springboot.domain.Manager;
 import com.sgwannabig.smallgift.springboot.repository.ManagerRepository;
 import com.sgwannabig.smallgift.springboot.service.manager.RegistManagerCommand;
 import com.sgwannabig.smallgift.springboot.service.manager.RegistManagerUsecase;
 import com.sgwannabig.smallgift.springboot.util.FileDir;
-import com.sgwannabig.smallgift.springboot.util.MultiPartUtil;
 import com.sgwannabig.smallgift.springboot.util.aws.S3Manager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +22,7 @@ public class RegistManagerService implements RegistManagerUsecase {
 
   @Override
   public Manager apply(RegistManagerCommand registManagerCommand) {
+    validateExistedManager(registManagerCommand.getManager().getUserId());
     MultipartFile businessRegistration = registManagerCommand.getBusinessRegistration();
     MultipartFile mailOrderSalesRegistration = registManagerCommand.getMailOrderSalesRegistration();
 
@@ -40,5 +41,11 @@ public class RegistManagerService implements RegistManagerUsecase {
 
   private String getUploadFileUrl(MultipartFile file, FileDir fileDir) {
     return s3Manager.uploadFile(file, fileDir);
+  }
+
+  private void validateExistedManager(Long userId) {
+    managerRepository.findByUserId(userId).ifPresent(m -> {
+      throw new ManagerExistedException("이미 존재하는 매니저입니다");
+    });
   }
 }

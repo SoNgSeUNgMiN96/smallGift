@@ -22,7 +22,7 @@ if [ -n "$RUNNING_APPLICATION"  ];then
 
 	echo "set \$service_url http://13.209.78.85:8082;" | sudo tee $DEFAULT_CONF
 	#docker exec nginx nginx -s reload
-	doker-compose restart web-server
+	docker-compose restart web-server
 	docker-compose stop blue
 else
 	echo "blue Deploy..."
