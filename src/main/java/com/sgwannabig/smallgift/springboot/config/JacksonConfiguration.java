@@ -13,18 +13,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JacksonConfiguration {
 
-  private static final String DATE_FORMAT = "yyyy-MM-dd";
-  private static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-  private static final String TIMEZONE = "Asia/Seoul";
-
   @Bean
   public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
 
     return builder -> {
 
       // formatter
-      DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
-      DateTimeFormatter dateTimeFormatter =  DateTimeFormatter.ofPattern(DATETIME_FORMAT);
+      DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+      DateTimeFormatter dateTimeFormatter =  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
       // deserializers
       builder.deserializers(new LocalDateDeserializer(dateFormatter));
@@ -32,8 +28,7 @@ public class JacksonConfiguration {
 
       // serializers
       builder.serializers(new LocalDateSerializer(dateFormatter));
-      builder.serializers(new LocalDateTimeSerializer(dateTimeFormatter))
-          .timeZone(TIMEZONE);
+      builder.serializers(new LocalDateTimeSerializer(dateTimeFormatter));
     };
   }
 }

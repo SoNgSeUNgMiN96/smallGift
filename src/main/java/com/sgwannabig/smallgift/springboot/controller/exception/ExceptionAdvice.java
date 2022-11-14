@@ -5,6 +5,7 @@ import com.sgwannabig.smallgift.springboot.service.ResponseService;
 import com.sgwannabig.smallgift.springboot.service.result.Result;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -60,13 +61,22 @@ public class ExceptionAdvice {
 
     @ExceptionHandler(ShopNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Result shopNotFoundException(ShopNotFoundException e) {
-        return responseService.getFailureResult(40400, e.getMessage());
+    public ResponseEntity<Result> shopNotFoundException(ShopNotFoundException e) {
+            return new ResponseEntity<>(responseService.getFailureResult(40400, e.getMessage()),
+                HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ProductNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Result productNotFoundException(ProductNotFoundException e) {
-        return responseService.getFailureResult(40400, e.getMessage());
+    public ResponseEntity<Result> productNotFoundException(ProductNotFoundException e) {
+        return new ResponseEntity<>(responseService.getFailureResult(40400, e.getMessage()),
+            HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ManagerExistedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Result> managerExistedException(ManagerExistedException e) {
+        return new ResponseEntity<>(responseService.getFailureResult(40000, e.getMessage()),
+            HttpStatus.BAD_REQUEST);
     }
 }
