@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<List<Product>> findAllByShopId(Long shopId);
 
+
+
     List<Product> findByShopId(Long ShopId);
     List<Product> findByCreateDateBetween(Date fromDate, Date toDate);
 }

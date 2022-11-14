@@ -16,6 +16,8 @@ public class ProductInfoDto {
 
     String productName;
 
+    String productImage;
+
     int productPrice;
 
     int discountPrice;

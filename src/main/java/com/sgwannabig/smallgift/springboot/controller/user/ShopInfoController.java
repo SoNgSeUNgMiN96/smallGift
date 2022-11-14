@@ -80,11 +80,16 @@ public class ShopInfoController {
                         .discountPrice(product.getDiscountPrice())
                         .price(product.getProductPrice())
                         .discountRate(product.getDiscountPrice()/(double)product.getProductPrice())
+                        .image(product.getProductImage())
                         .build();
 
                 menuRandomByLocateResDto.getMenuRandomByLocateResDto().add(new KeyValueDto<>(i, randomMenuDto));
             }
         });
+
+        if (menuRandomByLocateResDto.getMenuRandomByLocateResDto().size() > 3) {
+            menuRandomByLocateResDto.setMenuRandomByLocateResDto(menuRandomByLocateResDto.getMenuRandomByLocateResDto().subList(0, 3));
+        }
 
         return responseService.getSingleResult(menuRandomByLocateResDto);
     }
@@ -109,18 +114,24 @@ public class ShopInfoController {
         List<Shop> allShop, allshopSub;
 
 
+        String locateQuery;
+        if(locate.equals("")){
+            locateQuery = "%";
+        }else {
+            locateQuery = "%" + locate + "%";
+        }
+
         switch (category){
             case "전체":
                 //locate 설정해야함
-                allShop = shopRepository.findAllByShopAddressLikeOrderByTotalLikeDesc(locate);
+                allShop = shopRepository.findAllByShopAddressLikeOrderByTotalLikeDesc(locateQuery);
                 break;
 
             default:
-                allShop = shopRepository.findAllByShopAddressLikeAndCategoryLikeOrderByTotalLikeDesc(locate, category);
+                allShop = shopRepository.findAllByShopAddressLikeAndCategoryLikeOrderByTotalLikeDesc(locateQuery, category);
 
                 break;
         }
-
 
 
         int maxPage = (int) Math.ceil(allShop.size() / (double) pagePerCount);
@@ -136,6 +147,9 @@ public class ShopInfoController {
         if(allShop==null){
             return  responseService.getSingleResult(shopAllByLocateResDto);
         }
+
+        //최대갯수 예외처리
+        end = (end>allShop.size())? allShop.size() : end;
 
         List<Shop> finalAllShop = allShop.subList(start,end);
 
@@ -174,9 +188,11 @@ public class ShopInfoController {
 
         List<Shop> topShopByLocate;
 
+        String query;
+
         if(locate.equals("서울/경기")){
-            topShopByLocate = shopRepository.findTop3ByShopAddressLikeOrderByTotalLikeDesc("%서울%");
-            List<Shop> bestSub = shopRepository.findTop3ByShopAddressLikeOrderByTotalLikeDesc("%경기%");
+            topShopByLocate = shopRepository.findTop4ByShopAddressLikeOrderByTotalLikeDesc("%서울%");
+            List<Shop> bestSub = shopRepository.findTop4ByShopAddressLikeOrderByTotalLikeDesc("%경기%");
             topShopByLocate.addAll(bestSub);
 
             topShopByLocate.sort((s1,s2)->{
@@ -184,20 +200,20 @@ public class ShopInfoController {
             });
 
 
-
             topShopByLocate = topShopByLocate.subList(0, topShopByLocate.size()>3? 3 : topShopByLocate.size() );
 
-
         }else{
-            topShopByLocate = shopRepository.findTop3ByShopAddressLikeOrderByTotalLikeDesc("%" + locate + "%");
+            query = "";
+            if(locate.equals("")){
+                query = "%";
+            }else{
+                query = "%" + locate + "%";
+            }
+            topShopByLocate = shopRepository.findTop4ByShopAddressLikeOrderByTotalLikeDesc(query);
         }
 
 
-
-
         ShopBestByLocateResDto shopBestByLocateResDto = new ShopBestByLocateResDto(new ArrayList<>());
-
-
 
         if(topShopByLocate==null){
             return  responseService.getSingleResult(shopBestByLocateResDto);
@@ -237,13 +253,14 @@ public class ShopInfoController {
     public SingleResult<ShopInfoDetailDto> shopInfoAll(@RequestParam("shopId") long shopId){
 
         Optional<Shop> shopOptional = shopRepository.findById(shopId);
-        ShopInfoDetailDto shopDetailsResDto = null;
+        AtomicReference<ShopInfoDetailDto> shopDetailsResDto = new AtomicReference<>();
 
-        AtomicReference<SingleResult<ShopInfoDetailDto>> singleResult = null;
+        AtomicReference<SingleResult<ShopInfoDetailDto>> singleResult = new AtomicReference<>();
+
 
         shopOptional.ifPresentOrElse(shop -> {
 
-            shopDetailsResDto.builder()
+            shopDetailsResDto.set(ShopInfoDetailDto.builder()
                     .businessHours(shop.getBusinessHours())
                     .createShopDate(shop.getCreateShopDate())
                     .id(shop.getId())
@@ -252,16 +269,18 @@ public class ShopInfoController {
                     .shopTelephone(shop.getShopTelephone())
                     .mainMenu(shop.getMainMenu())
                     .category(shop.getCategory())
-                    .build();
+                    .build());
 
-            singleResult.set(responseService.getSingleResult(shopDetailsResDto));
+            singleResult.set(responseService.getSingleResult((shopDetailsResDto.get() == null) ? new ShopInfoDetailDto() :
+                    shopDetailsResDto.get()));
+
 
         }, () -> {
-            singleResult.set(responseService.getfailResult(409, shopDetailsResDto));
+            singleResult.set(responseService.getfailResult(409, new ShopInfoDetailDto()));
         });
-
         return singleResult.get();
     }
+
 
 
     @ApiOperation(value = "shop/menu", notes = "선택한 가게의 모든 메류를 보내준다")
@@ -281,7 +300,7 @@ public class ShopInfoController {
                 .shopAllMenuList(new ArrayList<>()).build();
 
 
-        AtomicReference<SingleResult<ShopAllMenuDto>> singleResult = null;
+        AtomicReference<SingleResult<ShopAllMenuDto>> singleResult = new AtomicReference<>();
 
         shopOptional.ifPresentOrElse(shop -> {
 
@@ -299,6 +318,7 @@ public class ShopInfoController {
                             .id(product.getId())
                             .productName(product.getProductName())
                             .productPrice(product.getProductPrice())
+                            .productImage(product.getProductImage())
                             .productStock(product.getProductStock())
                             .status(product.getStatus())
                             .startDate(product.getStartDate())

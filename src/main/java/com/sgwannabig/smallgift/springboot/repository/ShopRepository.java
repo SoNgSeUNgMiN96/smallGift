@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface ShopRepository extends JpaRepository<Shop, Long> {
     Optional<Shop> findById(String id);
     //지역명을 포함하여, 가장 인기있는 가게 Top10을 뽑아준다.  %서울%등으로 검색
-    List<Shop> findTop3ByShopAddressLikeOrderByTotalLikeDesc(String shopAddress);
+    List<Shop> findTop4ByShopAddressLikeOrderByTotalLikeDesc(String shopAddress);
 
     //지역을 기준으로 모든 가게를 반환한다.
     List<Shop> findAllByShopAddressLike(String shopAddress);
