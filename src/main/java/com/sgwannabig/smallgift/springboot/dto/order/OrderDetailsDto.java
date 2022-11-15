@@ -21,6 +21,18 @@ public class OrderDetailsDto {
     @ApiModelProperty(example = "6", dataType = "long")
     private long productId;
 
+    @ApiModelProperty(example = "6", dataType = "String")
+    private String buyDate;
+
+    @ApiModelProperty(example = "아이스 아메리카노", dataType = "String")
+    private String productName;
+
+    @ApiModelProperty(example = "http://~", dataType = "String")
+    private String productImage;
+
+    @ApiModelProperty(example = "~~원두입니다", dataType = "String")
+    private String productContent;
+
     //누가 샀는지.
     @ApiModelProperty(example = "7", dataType = "long")
     private long userId;
@@ -38,6 +50,8 @@ public class OrderDetailsDto {
     //해당 상품의 가격
     @ApiModelProperty(example = "7800", dataType = "int")
     int productPrice;
+
+
 
     //총 주문 가격
     @ApiModelProperty(example = "7800", dataType = "int")

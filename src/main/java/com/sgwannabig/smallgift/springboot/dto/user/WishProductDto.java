@@ -15,7 +15,11 @@ public class WishProductDto {
 
     String category;
 
+    String shopName;
+
     String productName;
+
+    String productContent;
 
     String productImage;
 
