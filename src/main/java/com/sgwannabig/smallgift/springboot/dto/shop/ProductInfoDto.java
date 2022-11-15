@@ -18,13 +18,19 @@ public class ProductInfoDto {
 
     String productImage;
 
+    String productContent;
+
     int productPrice;
+
+    long likeCount;
 
     int discountPrice;
 
     long productStock;
 
     int status;
+
+
 
     String createDate;
 

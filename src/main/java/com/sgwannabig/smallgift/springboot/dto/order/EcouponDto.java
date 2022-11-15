@@ -27,6 +27,9 @@ public class EcouponDto {
     @ApiModelProperty(name = "productName",value = "상품명",example = "아이스 아메리카노",dataType = "String")
     String productName;
 
+    @ApiModelProperty(name = "productImage",value = "상품이미지",example = "http://~~",dataType = "String")
+    String productImage;
+
 
     //주문내역을 근거할 결제번호.
     @ApiModelProperty(name = "paymentId",dataType = "long",example = "1021623")
