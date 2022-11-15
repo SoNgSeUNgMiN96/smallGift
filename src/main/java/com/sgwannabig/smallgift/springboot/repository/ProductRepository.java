@@ -16,4 +16,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findByShopId(Long ShopId);
     List<Product> findByCreateDateBetween(Date fromDate, Date toDate);
+    List<Product> findByProductName(String productName);
 }

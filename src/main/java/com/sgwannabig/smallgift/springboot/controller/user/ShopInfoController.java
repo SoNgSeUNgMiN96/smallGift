@@ -15,10 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
@@ -191,8 +188,8 @@ public class ShopInfoController {
         String query;
 
         if(locate.equals("서울/경기")){
-            topShopByLocate = shopRepository.findTop4ByShopAddressLikeOrderByTotalLikeDesc("%서울%");
-            List<Shop> bestSub = shopRepository.findTop4ByShopAddressLikeOrderByTotalLikeDesc("%경기%");
+            topShopByLocate = shopRepository.findTop3ByShopAddressLikeOrderByTotalLikeDesc("%서울%");
+            List<Shop> bestSub = shopRepository.findTop3ByShopAddressLikeOrderByTotalLikeDesc("%경기%");
             topShopByLocate.addAll(bestSub);
 
             topShopByLocate.sort((s1,s2)->{
@@ -209,7 +206,7 @@ public class ShopInfoController {
             }else{
                 query = "%" + locate + "%";
             }
-            topShopByLocate = shopRepository.findTop4ByShopAddressLikeOrderByTotalLikeDesc(query);
+            topShopByLocate = shopRepository.findTop3ByShopAddressLikeOrderByTotalLikeDesc(query);
         }
 
 
@@ -314,10 +311,12 @@ public class ShopInfoController {
                             .category(product.getCategory())
                             .createDate(product.getCreateDate())
                             .discountPrice(product.getDiscountPrice())
+                            .likeCount(product.getLikeCount())
                             .endDate(product.getEndDate())
                             .id(product.getId())
                             .productName(product.getProductName())
                             .productPrice(product.getProductPrice())
+                            .productContent(product.getProductContent())
                             .productImage(product.getProductImage())
                             .productStock(product.getProductStock())
                             .status(product.getStatus())
@@ -332,6 +331,66 @@ public class ShopInfoController {
         });
 
         return singleResult.get();
+    }
+
+
+    //검색결과 상점
+    @ApiOperation(value = "shop/info/keyword", notes = "검색어를 통한 상점검색")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="keyword", value ="검색어", required = true),
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "성공"),
+            @ApiResponse(code = 500, message = "서버에러"),
+            @ApiResponse(code = 409, message = "해당 지역구 결과 없음."),
+    })
+    @GetMapping("shop/info/keyword")
+    public SingleResult<ShopBestByLocateResDto> searchShopByKeyword(@RequestParam("keyword") String keyword) {
+
+        ShopBestByLocateResDto shopBestByLocateResDto = new ShopBestByLocateResDto(new ArrayList<>());
+
+        if (keyword.equals("")) {
+            keyword = "%";
+        }else {
+            keyword = "%" + keyword + "%";
+        }
+
+        List<Shop> allByShopNameLike = shopRepository.findAllByShopNameLike(keyword);
+        List<Product> byProductName = productRepository.findByProductName(keyword);
+
+        HashSet<Long> shopIdSet = new HashSet<>();
+
+        int i=0;
+
+        for (Shop shop : allByShopNameLike) {
+            shopIdSet.add(shop.getId());
+        }
+
+        for (Product product : byProductName) {
+            Shop shopByProduct = product.getShop();
+            if (!shopIdSet.contains(shopByProduct.getId())) {
+                shopIdSet.add(shopByProduct.getId());
+                allByShopNameLike.add(shopByProduct);
+
+            }
+        }
+
+        for (Shop shop : allByShopNameLike) {
+            ShopInfoDto shopInfoDto = ShopInfoDto.builder()
+                    .address(shop.getShopAddress())
+                    .shopId(shop.getId())
+                    .category(shop.getCategory())
+                    .shopName(shop.getShopName())
+                    .build();
+
+            shopBestByLocateResDto.getTopShopByLocate().add(new KeyValueDto<>(i++, shopInfoDto));
+        }
+
+        if(allByShopNameLike==null||allByShopNameLike.size()==0){
+            return  responseService.getSingleResult(shopBestByLocateResDto);
+        }
+
+        return responseService.getSingleResult(shopBestByLocateResDto);
     }
 
 

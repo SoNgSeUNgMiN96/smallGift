@@ -11,4 +11,6 @@ public interface EcouponRepository extends JpaRepository<Ecoupon, Long> {
 
     //user_id, orderdetails_id, orderdetails_id orderdetails_id
     List<Ecoupon> findByUserId(long userId);
+
+    boolean existsByCouponNumber(String couponNumber);
 }

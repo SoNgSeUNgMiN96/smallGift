@@ -65,7 +65,6 @@ public class Ecoupon extends BaseTimeEntity{
     private String couponNumber;
 
     //사용기한.
-    @CreatedDate
     private LocalDateTime expirationTime;
 
     //사용일자.
