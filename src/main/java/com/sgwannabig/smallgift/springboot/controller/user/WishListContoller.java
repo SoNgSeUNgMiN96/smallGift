@@ -75,14 +75,17 @@ public class WishListContoller {
 
             wishList.stream().forEach(wish->{
                 Product product = wish.getProduct();
+                Shop shop = product.getShop();
 
-                if(product!=null) {
+                if(product!=null&&shop!=null) {
 
                     wishListResDto.getWishList().add(new KeyValueDto<Integer, WishProductDto>(idx.incrementAndGet(), WishProductDto.builder()
                             .wishListId(wish.getId())
                             .discountPrice(product.getDiscountPrice())
                             .productName(product.getProductName())
+                            .productContent(product.getProductContent())
                             .category(product.getCategory())
+                            .shopName(shop.getShopName())
                             .productImage(product.getProductImage())
                             .productStock(product.getProductStock())
                             .productPrice(product.getProductPrice())

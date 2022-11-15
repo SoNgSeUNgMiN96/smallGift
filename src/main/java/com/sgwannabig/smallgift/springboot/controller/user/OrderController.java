@@ -9,11 +9,16 @@ import com.sgwannabig.smallgift.springboot.service.ResponseService;
 import com.sgwannabig.smallgift.springboot.service.result.SingleResult;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Time;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,31 +59,31 @@ public class OrderController {
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "성공"),
+            @ApiResponse(code = 401, message = "잘못된 productId"),
             //@ApiResponse(code = 408, message = "유저 ID에 매치되는 userInfo가 없습니다. 기본주소를 사용해주세요."),
             @ApiResponse(code = 500, message = "서버에러"),
     })
     @PostMapping("/order")
-    public SingleResult<CreateOrderDto> createOrder(@RequestBody OrderDto orderDto) {
+    public SingleResult<OrderDetailsDto> createOrder(@RequestBody OrderDto orderDto) {
 
 
         Optional<User> orderer = userRepository.findById(orderDto.getUserId());
 
-        List<OrderedProduct> orderedProductList = orderDto.getOrderedProductList();
 
         List<OrderDetailsDto> orderDetailsList = new ArrayList<>();
 
         int amountSum=0;
 
-        for (OrderedProduct orderedProduct : orderedProductList) {
-            long productId = orderedProduct.getProductId();
 
-            Optional<Product> product = productRepository.findById(productId);
+        long productId = orderDto.getProductId();
+        Optional<Product> product = productRepository.findById(productId);
 
 
-            int amount = product.get().getDiscountPrice() * orderedProduct.getQty();
-
-            amountSum += amount;
+        if(product.isEmpty()){
+            return responseService.getfailResult(401, new OrderDetailsDto());
         }
+
+        amountSum = product.get().getDiscountPrice();
 
 
         // 결제를 찍고
@@ -91,66 +96,79 @@ public class OrderController {
         paymentRepository.save(payment);
 
 
-
-        for (OrderedProduct orderedProduct : orderedProductList) {
-            long productId = orderedProduct.getProductId();
-
-            Optional<Product> product = productRepository.findById(productId);
-
-
-            int amount = product.get().getDiscountPrice() * orderedProduct.getQty();
-
-
-
-            OrderDetails orderDetails = OrderDetails.builder()
-                    .payment(payment)
-                    .product(product.get())
-                    .user(orderer.get())
-                    .quantity(orderedProduct.getQty())
-                    .totalAmount(amount)
-                    .productPrice(product.get().getDiscountPrice())
-                    .build();
+        OrderDetails orderDetails = OrderDetails.builder()
+                .payment(payment)
+                .product(product.get())
+                .user(orderer.get())
+                .quantity(1)
+                .totalAmount(amountSum)
+                .productPrice(product.get().getDiscountPrice())
+                .build();
 
 
-            OrderDetailsDto orderDetailsDto =  OrderDetailsDto.builder()
-                    .productId(payment.getId())
-                    .productId(product.get().getId())
-                    .userId(orderer.get().getId())
-                    .quantity(orderedProduct.getQty())
-                    .totalAmount(amount)
-                    .productPrice(product.get().getDiscountPrice())
-                    .build();
+        OrderDetailsDto orderDetailsDto =  OrderDetailsDto.builder()
+                .productId(payment.getId())
+                .productId(product.get().getId())
+                .userId(orderer.get().getId())
+                .productName(orderDetails.getProduct().getProductName())
+                .productContent(orderDetails.getProduct().getProductContent())
+                .productImage(orderDetails.getProduct().getProductImage())
+                .quantity(1)
+                .totalAmount(amountSum)
+                .productPrice(product.get().getDiscountPrice())
+                .build();
+    
+        //couponNumber 12자리
 
-
-            orderDetailsList.add(orderDetailsDto);
-
-            orderdetailsRepository.save(orderDetails);
-
-            for (int i = 0; i < orderedProduct.getQty(); i++) {
-                Ecoupon ecoupon = Ecoupon.builder()
-                        .couponNumber("000000000")
-                        .user(orderer.get())
-                        .payment(payment)
-                        .product(product.get())
-                        .useState("N")
-                        .build();
-
-                ecouponRepository.save(ecoupon);
+        String couponNumber ="";
+        while (true) {
+            couponNumber = getCoupon();
+            if (!ecouponRepository.existsByCouponNumber(couponNumber)) {
+                break;
             }
-
-            amountSum += amount;
         }
 
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        int year = currentDateTime.getYear();
+        int month = currentDateTime.getMonthOfYear();
+        int day = currentDateTime.getDayOfMonth();
+        month +=3;
+        if (month > 12) {
+            month -= 12;
+            year++;
+        }
 
-        CreateOrderDto createOrderDto = CreateOrderDto.builder()
-                .orderDetailsList(orderDetailsList).build();
+        java.time.LocalDateTime expirationTime = java.time.LocalDateTime.of(year, month, day, 0, 0,0,0);
+
+        // 여기도 second,nanoSecond 매개변수는 필수가 아닌 선택입니다.
+
+        Ecoupon ecoupon = Ecoupon.builder()
+                .couponNumber(couponNumber)
+                .expirationTime(expirationTime)
+                .user(orderer.get())
+                .payment(payment)
+                .product(product.get())
+                .useState("N")
+                .build();
+
+        ecouponRepository.save(ecoupon);
+
+        orderdetailsRepository.save(orderDetails);
 
 
         //상품별 주문내역들을 남기고
 
         //주문내역별 (수량을 기준으로 여러개의 쿠폰을 만들고
 
-        return responseService.getSingleResult(createOrderDto);
+        return responseService.getSingleResult(orderDetailsDto);
+    }
+
+    private String getCoupon() {
+        long digit = 9000000000000L;
+        double random = Math.random() * digit;
+        long randomNumber = (long) random + digit/9;
+        String couponNumber = String.valueOf(randomNumber);
+        return couponNumber;
     }
 
 
@@ -186,6 +204,9 @@ public class OrderController {
                     .id(orderDetails.getId())
                     .paymentId(orderDetails.getPayment().getId())
                     .productId(orderDetails.getProduct().getId())
+                    .productName(orderDetails.getProduct().getProductName())
+                    .productContent(orderDetails.getProduct().getProductContent())
+                    .productImage(orderDetails.getProduct().getProductImage())
                     .quantity(orderDetails.getQuantity())
                     .productPrice(orderDetails.getProductPrice())
                     .totalAmount(orderDetails.getTotalAmount())
@@ -233,12 +254,11 @@ public class OrderController {
                 .couponNumber(ecouponParse.getCouponNumber())
                 .expirationTime(ecouponParse.getExpirationTime())
                 .productName(ecouponParse.getProduct().getProductName())
+                .productImage(ecouponParse.getProduct().getProductImage())
                 .useState(ecouponParse.getUseState())
                 .paymentId(ecouponParse.getPayment().getId())
                 .usedTime(ecouponParse.getUseState().equals("Y") ? ecouponParse.getUsedTime() : null)
                 .build();
-
-
 
         return responseService.getSingleResult(ecouponDto);
     }
