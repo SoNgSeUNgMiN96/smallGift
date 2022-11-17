@@ -79,4 +79,10 @@ public class ExceptionAdvice {
         return new ResponseEntity<>(responseService.getFailureResult(40000, e.getMessage()),
             HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(ManagerNotFoundException.class)
+    public ResponseEntity<Result> managerNotFoundException(ManagerNotFoundException e) {
+        return new ResponseEntity<>(responseService.getFailureResult(40400, e.getMessage()),
+            HttpStatus.NOT_FOUND);
+    }
 }
