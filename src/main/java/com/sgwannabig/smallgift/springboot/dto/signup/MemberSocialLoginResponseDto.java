@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class MemberSocialLoginResponseDto {
 
     @ApiModelProperty(example = "13")
-    private Long id;
+    private Long memberId;
     @ApiModelProperty(example = "Bearer ~~")
     private String jwtAccessToken;
     @ApiModelProperty(example = "Bearer ~~")

@@ -12,8 +12,8 @@ import java.util.List;
 @Data
 public class OrderDto {
 
-    @ApiModelProperty(example = "4",dataType = "long", notes = "유저의 아이디입니다.")
-    long userId;
+    @ApiModelProperty(example = "4",dataType = "long", notes = "유저의 member아이디입니다.")
+    long memberId;
 
     @ApiModelProperty(example = "4",dataType = "long", notes = "상품의 아이디입니다.")
     long productId;
