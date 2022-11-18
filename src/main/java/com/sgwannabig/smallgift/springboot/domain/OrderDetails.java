@@ -16,7 +16,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderDetails {
+public class OrderDetails extends BaseTimeEntity{
 
     //주문 아이디.
     @Id
@@ -60,4 +60,6 @@ public class OrderDetails {
 
     //총 주문 가격
     int totalAmount;
+
+    boolean isRefund;
 }

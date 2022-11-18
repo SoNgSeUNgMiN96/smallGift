@@ -1,12 +1,21 @@
 package com.sgwannabig.smallgift.springboot.domain;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+
+@Builder
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class RefundDetails {
 
     @Id
@@ -26,8 +35,7 @@ public class RefundDetails {
     @JoinColumn(name = "ecoupon_id")
     private Ecoupon ecoupon;
 
-
-    //환불 상태. true가 정산완료
+    //환불 상태. true가 환불완료
     private boolean refundStatus;
 
     //환불 날짜.
