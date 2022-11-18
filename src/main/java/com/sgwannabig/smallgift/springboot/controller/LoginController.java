@@ -25,6 +25,7 @@ import com.sgwannabig.smallgift.springboot.service.result.Result;
 import com.sgwannabig.smallgift.springboot.service.result.SingleResult;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -50,6 +51,7 @@ import java.util.regex.Pattern;
 @RestController
 @RequestMapping("api/user")
 @RequiredArgsConstructor
+@Slf4j
 public class LoginController {
 
     private final MemberRepository memberRepository;
@@ -88,6 +90,8 @@ public class LoginController {
 
         // 넘어온 인가 코드를 통해 access_token 발급
         OauthToken oauthToken = userService.getKakaoAccessToken(code);
+
+        log.info("oauth : {}", oauthToken);
         //(1)
         // 발급 받은 accessToken 으로 카카오 회원 정보 DB 저장
         Member member = userService.saveUser(oauthToken.getAccess_token());

@@ -17,13 +17,14 @@ public class GetAllProductService implements GetAllProductUsecase {
   private final ProductRepository productRepository;
   private final ShopRepository shopRepository;
   @Override
-  public List<Product> getAllProduct(Long shopId) {
-    Shop shop = findShop(shopId);
+  public List<Product> getAllProduct(Long managerId) {
+    Shop shop = findShop(managerId);
     return productRepository.findByShopId(shop.getId());
   }
 
-  private Shop findShop(Long id) {
-    return shopRepository.findById(id)
-        .orElseThrow(() -> new ShopNotFoundException("해당 가게가 존재하지 않습니다"));
+  private Shop findShop(Long managerId) {
+    return shopRepository.findByManagerId(managerId)
+        .orElseThrow(() -> new ShopNotFoundException("해당 가게가 존재하지 않습니다")
+        );
   }
 }
