@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/shops")
+@RequestMapping("api/managers/{managerId}")
 @RequiredArgsConstructor
 public class GetAllProductController {
 
@@ -34,12 +34,12 @@ public class GetAllProductController {
       @ApiResponse(responseCode = "404", description = "존재하지 않는 가게입니다"),
       @ApiResponse(responseCode = "400", description = "잘못된 요청입니다")
   })
-  @GetMapping("/{shopId}/products")
+  @GetMapping("/shops/products")
   public ResponseEntity<MultipleResult<GetAllProductResponseDto>> getAllProduct(
-      @Parameter(description = "가게 ID",required = true)
-      @PathVariable Long shopId) {
+      @Parameter(description = "매니저 ID",required = true)
+      @PathVariable Long managerId) {
 
-    List<Product> allProduct = getAllProductUsecase.getAllProduct(shopId);
+    List<Product> allProduct = getAllProductUsecase.getAllProduct(managerId);
     System.out.println(allProduct.size());
 
     return ResponseEntity.ok(responseService.getMultipleResult(

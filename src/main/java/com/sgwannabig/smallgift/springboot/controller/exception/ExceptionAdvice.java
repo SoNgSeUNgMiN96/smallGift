@@ -60,21 +60,18 @@ public class ExceptionAdvice {
     }
 
     @ExceptionHandler(ShopNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<Result> shopNotFoundException(ShopNotFoundException e) {
             return new ResponseEntity<>(responseService.getFailureResult(40400, e.getMessage()),
                 HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ProductNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<Result> productNotFoundException(ProductNotFoundException e) {
         return new ResponseEntity<>(responseService.getFailureResult(40400, e.getMessage()),
             HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ManagerExistedException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Result> managerExistedException(ManagerExistedException e) {
         return new ResponseEntity<>(responseService.getFailureResult(40000, e.getMessage()),
             HttpStatus.BAD_REQUEST);
