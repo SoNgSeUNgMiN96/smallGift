@@ -3,6 +3,7 @@ package com.sgwannabig.smallgift.springboot.controller.user;
 
 import com.sgwannabig.smallgift.springboot.domain.*;
 import com.sgwannabig.smallgift.springboot.domain.product.Product;
+import com.sgwannabig.smallgift.springboot.domain.shop.Shop;
 import com.sgwannabig.smallgift.springboot.dto.order.*;
 import com.sgwannabig.smallgift.springboot.repository.*;
 import com.sgwannabig.smallgift.springboot.service.ResponseService;
@@ -51,6 +52,8 @@ public class OrderController {
     ResponseService responseService;
 
 
+    @Autowired
+    RefundDetailsRepository refundDetailsRepository;
 
 
     @ApiOperation(value = "/order", notes = "유저의 주문 처리 후 주문내역을 반환합니다.")
@@ -67,7 +70,7 @@ public class OrderController {
     public SingleResult<OrderDetailsDto> createOrder(@RequestBody OrderDto orderDto) {
 
 
-        Optional<User> orderer = userRepository.findById(orderDto.getUserId());
+        User orderer = userRepository.findByMemberId(orderDto.getMemberId());
 
 
         List<OrderDetailsDto> orderDetailsList = new ArrayList<>();
@@ -99,17 +102,21 @@ public class OrderController {
         OrderDetails orderDetails = OrderDetails.builder()
                 .payment(payment)
                 .product(product.get())
-                .user(orderer.get())
+                .user(orderer)
                 .quantity(1)
                 .totalAmount(amountSum)
                 .productPrice(product.get().getDiscountPrice())
+                .isRefund(false)
                 .build();
+
+        orderdetailsRepository.save(orderDetails);
 
 
         OrderDetailsDto orderDetailsDto =  OrderDetailsDto.builder()
                 .productId(payment.getId())
+                .orderDetailsId(orderDetails.getId())
                 .productId(product.get().getId())
-                .userId(orderer.get().getId())
+                .userId(orderer.getId())
                 .productName(orderDetails.getProduct().getProductName())
                 .productContent(orderDetails.getProduct().getProductContent())
                 .productImage(orderDetails.getProduct().getProductImage())
@@ -142,10 +149,13 @@ public class OrderController {
 
         // 여기도 second,nanoSecond 매개변수는 필수가 아닌 선택입니다.
 
+
+
         Ecoupon ecoupon = Ecoupon.builder()
                 .couponNumber(couponNumber)
+                .orderDetails(orderDetails)
                 .expirationTime(expirationTime)
-                .user(orderer.get())
+                .user(orderer)
                 .payment(payment)
                 .product(product.get())
                 .useState("N")
@@ -153,7 +163,7 @@ public class OrderController {
 
         ecouponRepository.save(ecoupon);
 
-        orderdetailsRepository.save(orderDetails);
+
 
 
         //상품별 주문내역들을 남기고
@@ -176,7 +186,7 @@ public class OrderController {
         유저의 주문내역 조회
      */
 
-    @ApiOperation(value = "/order", notes = "유저의 모든 주문 내역을 반환합니다. ")
+    @ApiOperation(value = "/order/all", notes = "유저의 모든 주문 내역을 반환합니다. ")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "memberId", value = "멤버 아이디", required = true),
     })
@@ -200,18 +210,24 @@ public class OrderController {
 
 
         userOrderDetailsList.stream().forEach(orderDetails -> {
-            OrderDetailsDto userOrderDetailsDto = OrderDetailsDto.builder()
-                    .id(orderDetails.getId())
-                    .paymentId(orderDetails.getPayment().getId())
-                    .productId(orderDetails.getProduct().getId())
-                    .productName(orderDetails.getProduct().getProductName())
-                    .productContent(orderDetails.getProduct().getProductContent())
-                    .productImage(orderDetails.getProduct().getProductImage())
-                    .quantity(orderDetails.getQuantity())
-                    .productPrice(orderDetails.getProductPrice())
-                    .totalAmount(orderDetails.getTotalAmount())
-                    .build();
-            allOrderDetailsDto.getOrderDetailsDtoList().add(userOrderDetailsDto);
+
+            if (!orderDetails.isRefund()) {
+                OrderDetailsDto userOrderDetailsDto = OrderDetailsDto.builder()
+                        .orderDetailsId(orderDetails.getId())
+                        .shopId(orderDetails.getProduct().getShop().getShopName())
+                        .paymentId(orderDetails.getPayment().getId())
+                        .productId(orderDetails.getProduct().getId())
+                        .productName(orderDetails.getProduct().getProductName())
+                        .productContent(orderDetails.getProduct().getProductContent())
+                        .productImage(orderDetails.getProduct().getProductImage())
+                        .quantity(orderDetails.getQuantity())
+                        .orderDate(orderDetails.getCreateDate().toString())
+                        .productPrice(orderDetails.getProductPrice())
+                        .totalAmount(orderDetails.getTotalAmount())
+                        .build();
+
+                allOrderDetailsDto.getOrderDetailsDtoList().add(userOrderDetailsDto);
+            }
         });
 
 
@@ -262,6 +278,112 @@ public class OrderController {
 
         return responseService.getSingleResult(ecouponDto);
     }
+
+
+    @ApiOperation(value = "/order", notes = "유저의 모든 주문 내역을 반환합니다. ")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "memberId", value = "멤버 아이디", required = true),
+            @ApiImplicitParam(name = "memberId", value = "멤버 아이디", required = true),
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "성공"),
+            @ApiResponse(code = 407, message = "orderDetailsId 매치되는 ecoupon이 없습니다."),
+            @ApiResponse(code = 407, message = "memberId 매치 X"),
+            @ApiResponse(code = 408, message = "orderDetailsId 매치되는 주문내역이 없습니다."),
+            @ApiResponse(code = 500, message = "서버에러"),
+    })
+    @DeleteMapping("/order")
+    public SingleResult<Boolean> refundOrder(@RequestParam long memberId, @RequestParam long orderDetailsId) {
+
+
+        Ecoupon ecouponRepositoryByOrderDetailsId = ecouponRepository.findByOrderDetailsId(orderDetailsId);
+
+        if (ecouponRepositoryByOrderDetailsId == null) {
+            return responseService.getfailResult(406, false);
+        }
+
+        ecouponRepositoryByOrderDetailsId.setUseState("R");
+
+        ecouponRepository.save(ecouponRepositoryByOrderDetailsId);
+
+
+        User userByMemberId = userRepository.findByMemberId(memberId);
+
+        if (userByMemberId == null) {
+            return responseService.getfailResult(408, false);
+        }
+
+        RefundDetails refundDetails =RefundDetails.builder()
+                .ecoupon(ecouponRepositoryByOrderDetailsId)
+                .user(userByMemberId)
+                .refundStatus(true)
+                .build();
+
+        refundDetailsRepository.save(refundDetails);
+
+        Optional<OrderDetails> orderdetailsById = orderdetailsRepository.findById(orderDetailsId);
+
+        if (orderdetailsById.isEmpty()) {
+            return responseService.getfailResult(408, false);
+        }
+
+        orderdetailsById.get().setRefund(true);
+
+        orderdetailsRepository.save(orderdetailsById.get());
+
+
+        return responseService.getSingleResult(true);
+    }
+
+
+
+    @ApiOperation(value = "/order/refund/all", notes = "유저의 모든 주문 내역을 반환합니다. ")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "memberId", value = "멤버 아이디", required = true),
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "성공"),
+            @ApiResponse(code = 408, message = "멤버 아이디에 매치되는 유저가 없습니다."),
+            @ApiResponse(code = 500, message = "서버에러"),
+    })
+    @GetMapping("/order/refund/all")
+    public SingleResult<AllRefundDefailsDto> gerAllRefund(@RequestParam long memberId) {
+
+        User findUser = userRepository.findByMemberId(memberId);
+
+        if(findUser==null){
+            return responseService.getfailResult(408, null);
+        }
+
+        List<RefundDetails> userRefundDetailsList = refundDetailsRepository.findAllByUserId(findUser.getId());
+
+        AllRefundDefailsDto allRefundDefailsDto = AllRefundDefailsDto.builder().refundDetailsDtoList(new ArrayList<>()).build();
+
+
+        userRefundDetailsList.stream().forEach(refundDetails -> {
+
+            Ecoupon ecoupon = refundDetails.getEcoupon();
+            java.time.LocalDateTime createDate = ecoupon.getCreateDate();
+            Product product = ecoupon.getProduct();
+            Shop shop = product.getShop();
+
+            RefundDetailsDto refundDetailsDto = RefundDetailsDto.builder()
+                    .shopName(shop.getShopName())
+                    .shopContent(product.getProductName())
+                    .productImage(product.getProductImage())
+                    .orderNumber(ecoupon.getOrderDetails().getId())
+                    .orderDate(createDate.toString())
+                    .refundAmount(product.getDiscountPrice())
+                    .paidAmount(product.getDiscountPrice())
+                    .build();
+
+            allRefundDefailsDto.getRefundDetailsDtoList().add(refundDetailsDto);
+        });
+
+
+        return responseService.getSingleResult(allRefundDefailsDto);
+    }
+
 
 
 }

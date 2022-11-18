@@ -13,9 +13,9 @@ import lombok.NoArgsConstructor;
 public class OrderDetailsDto {
 
     //주문 아이디.
-
     @ApiModelProperty(example = "3", dataType = "long")
-    private long id;
+    private long orderDetailsId;
+
     //어떤 상품을 샀는지 (동일 상품을 다음에 또 주문할 수 있음.)
 
     @ApiModelProperty(example = "6", dataType = "long")
@@ -23,6 +23,10 @@ public class OrderDetailsDto {
 
     @ApiModelProperty(example = "6", dataType = "String")
     private String buyDate;
+
+    @ApiModelProperty(example = "스타벅스", dataType = "String")
+    private String shopId;
+
 
     @ApiModelProperty(example = "아이스 아메리카노", dataType = "String")
     private String productName;
@@ -51,7 +55,8 @@ public class OrderDetailsDto {
     @ApiModelProperty(example = "7800", dataType = "int")
     int productPrice;
 
-
+    @ApiModelProperty( value = "주문시간",example = "2022-11-11", dataType = "int")
+    String orderDate;
 
     //총 주문 가격
     @ApiModelProperty(example = "7800", dataType = "int")

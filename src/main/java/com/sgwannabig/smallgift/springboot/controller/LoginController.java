@@ -110,7 +110,6 @@ public class LoginController {
                 .withClaim("username", member.getUsername())
                 .sign(Algorithm.HMAC512(JwtProperties.SECRET));
 
-
         refreshTokenRepository.save(new RefreshToken(jwtRefreshToken));
 
         MemberSocialLoginResponseDto memberSocialLoginResponseDto = new MemberSocialLoginResponseDto(member.getId(), JwtProperties.TOKEN_PREFIX + jwtAccessToken, JwtProperties.TOKEN_PREFIX + jwtRefreshToken);

@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sgwannabig.smallgift.springboot.config.auth.PrincipalDetails;
+import com.sgwannabig.smallgift.springboot.domain.Member;
 import com.sgwannabig.smallgift.springboot.domain.RefreshToken;
 import com.sgwannabig.smallgift.springboot.dto.login.JwtDto;
 import com.sgwannabig.smallgift.springboot.dto.login.LoginRequestDto;
@@ -113,9 +114,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .withClaim("username", principalDetailis.getUser().getUsername())
                 .sign(Algorithm.HMAC512(JwtProperties.SECRET));
 
+        Member byEmail = memberRepository.findByEmail(principalDetailis.getUser().getUsername());
+
         JwtDto jwtDto = new JwtDto().builder()
                 .jwtAccessToken(JwtProperties.TOKEN_PREFIX + jwtAccessToken)
                 .jwtRefreshToken(JwtProperties.TOKEN_PREFIX + jwtRefreshToken)
+                .memberId(byEmail.getId())
                 .build();
 
         refreshTokenRepository.save(new RefreshToken(jwtRefreshToken));
