@@ -17,10 +17,11 @@ if [ -n "$RUNNING_APPLICATION"  ];then
 		if [ -n "$REQUEST" ]; then
 			break ;
 		fi
-		sleep 3
+		sleep 5
 	done;
 
 	echo "set \$service_url http://13.209.78.85:8082;" | sudo tee $DEFAULT_CONF
+	sleep 5
 	#docker exec nginx nginx -s reload
 	docker-compose restart web-server
 	docker-compose stop blue
@@ -37,10 +38,11 @@ else
 		if [ -n "$REQUEST" ]; then
             break ;
         fi
-		sleep 3
+		sleep 5
     done;
 
 	echo "set \$service_url http://13.209.78.85:8081;" | sudo tee $DEFAULT_CONF
+	sleep 5
 	#docker exec nginx nginx -s reload
 	docker-compose restart web-server
 	docker-compose stop green
