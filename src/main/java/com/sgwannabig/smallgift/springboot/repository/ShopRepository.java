@@ -17,7 +17,8 @@ public interface ShopRepository extends JpaRepository<Shop, Long> {
     //지역을 기준으로 모든 가게를 반환한다.
     List<Shop> findAllByShopAddressLike(String shopAddress);
 
-    Optional<Manager> findByManager(Manager manager);
+    Optional<Shop> findByManager(Manager manager);
+    Optional<Shop> findByManagerId(Long managerId);
 
     //지역을 기준으로 모든 가게를 반환한다.
     List<Shop> findAllByShopAddressLikeOrderByTotalLikeDesc(String shopAddress);
