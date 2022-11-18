@@ -39,13 +39,14 @@ public class UserService {
         RestTemplate rt = new RestTemplate();
 
         rt.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
-        rt.setErrorHandler(new DefaultResponseErrorHandler(){
-            @Override
+        rt.setErrorHandler(new DefaultResponseErrorHandler() {
             public boolean hasError(ClientHttpResponse response) throws IOException {
                 HttpStatus statusCode = response.getStatusCode();
-                return statusCode.series() == Series.SERVER_ERROR;
+                return statusCode.series() == HttpStatus.Series.SERVER_ERROR;
             }
         });
+
+
 
         //(3)
         HttpHeaders headers = new HttpHeaders();
@@ -113,7 +114,7 @@ public class UserService {
 
         //(1-2)
         RestTemplate rt = new RestTemplate();
-
+        rt.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
         //(1-3)
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + token); //(1-4)
@@ -127,7 +128,7 @@ public class UserService {
         // Http 요청 (POST 방식) 후, response 변수에 응답을 받음
         ResponseEntity<String> kakaoProfileResponse = rt.exchange(
                 "https://kapi.kakao.com/v2/user/me",
-                HttpMethod.POST,
+                HttpMethod.GET,
                 kakaoProfileRequest,
                 String.class
         );
