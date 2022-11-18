@@ -9,6 +9,7 @@ import com.sgwannabig.smallgift.springboot.repository.MemberRepository;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -32,6 +33,8 @@ public class UserService {
 
         //(2)
         RestTemplate rt = new RestTemplate();
+
+        rt.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
 
         //(3)
         HttpHeaders headers = new HttpHeaders();
