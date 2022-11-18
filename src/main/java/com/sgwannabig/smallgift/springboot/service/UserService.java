@@ -6,14 +6,18 @@ import com.sgwannabig.smallgift.springboot.dto.login.KakaoProfile;
 import com.sgwannabig.smallgift.springboot.domain.Member;
 import com.sgwannabig.smallgift.springboot.domain.OauthToken;
 import com.sgwannabig.smallgift.springboot.repository.MemberRepository;
+import java.io.IOException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.http.HttpStatus.Series;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -35,6 +39,13 @@ public class UserService {
         RestTemplate rt = new RestTemplate();
 
         rt.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+        rt.setErrorHandler(new DefaultResponseErrorHandler(){
+            @Override
+            public boolean hasError(ClientHttpResponse response) throws IOException {
+                HttpStatus statusCode = response.getStatusCode();
+                return statusCode.series() == Series.SERVER_ERROR;
+            }
+        });
 
         //(3)
         HttpHeaders headers = new HttpHeaders();
