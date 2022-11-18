@@ -7,3 +7,5 @@ if [ -d /home/ec2-user/app/zip/ ]; then
     rm -rf /home/ec2-user/app/zip/
 fi
 mkdir -vp /home/ec2-user/app/zip/
+
+sleep 10
