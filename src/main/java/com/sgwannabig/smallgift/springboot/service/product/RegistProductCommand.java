@@ -6,13 +6,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 public class RegistProductCommand {
-  private Long shopId;
+  private Long managerId;
   private Product product;
 
   private MultipartFile productImage;
 
-  public RegistProductCommand(Long shopId, Product product, MultipartFile productImage) {
-    this.shopId = shopId;
+  public RegistProductCommand(Long managerId, Product product, MultipartFile productImage) {
+    this.managerId = managerId;
     this.product = product;
     this.productImage = productImage;
   }

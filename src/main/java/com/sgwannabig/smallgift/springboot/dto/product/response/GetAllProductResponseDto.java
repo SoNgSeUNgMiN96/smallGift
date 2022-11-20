@@ -21,12 +21,19 @@ public class GetAllProductResponseDto {
   @Schema(description = "상품 상태", example = "SOLD_OUT")
   private ProductStatus productStatus;
 
+  @Schema(description = "판매 시작 날짜", example = "2022-10-10")
+  private String startDate;
+  @Schema(description = "판매 종료 날짜", example = "2022-10-20")
+  private String endDate;
+
   public GetAllProductResponseDto(Product product) {
     this.id = product.getId();
     this.productName = product.getProductName();
     this.productImage = product.getProductImage();
     this.productPrice = product.getProductPrice();
     this.productStatus = product.getProductStatus();
+    this.startDate = product.getStartDate();
+    this.endDate = product.getEndDate();
   }
 
   public static GetAllProductResponseDto from(Product product) {
