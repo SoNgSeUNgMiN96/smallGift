@@ -23,7 +23,7 @@ public class RegistProductService implements RegistProductUsecase {
 
   @Override
   public Product apply(RegistProductCommand registProductCommand) {
-    Shop shop = findShop(registProductCommand.getShopId());
+    Shop shop = findShop(registProductCommand.getManagerId());
     String productImageUrl = s3Manager.uploadFile(registProductCommand.getProductImage(), FileDir.REGIST_PRODUCT);
     Product product = registProductCommand.getProduct();
     product.setProductImage(productImageUrl);
@@ -32,8 +32,7 @@ public class RegistProductService implements RegistProductUsecase {
   }
 
   private Shop findShop(Long id) {
-    return shopRepository.findById(id)
+    return shopRepository.findByManagerId(id)
         .orElseThrow(() -> new ShopNotFoundException("해당 가게가 존재하지 않습니다"));
-
   }
 }
