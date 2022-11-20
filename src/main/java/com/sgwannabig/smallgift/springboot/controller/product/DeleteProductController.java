@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/shops")
+@RequestMapping("api/managers/{managerId}")
 @RequiredArgsConstructor
 public class DeleteProductController {
 
@@ -29,7 +29,7 @@ public class DeleteProductController {
       @ApiResponse(responseCode = "404", description = "존재하지 않는 상품입니다"),
       @ApiResponse(responseCode = "400", description = "잘못된 요청입니다")
   })
-  @DeleteMapping("/{shopId}/products/{productId}")
+  @DeleteMapping("/shops/products/{productId}")
   public ResponseEntity<Result> deleteProduct(
       @Parameter(description = "상품 ID")
       @PathVariable Long productId) {
