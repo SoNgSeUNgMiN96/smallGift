@@ -114,7 +114,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .withClaim("username", principalDetailis.getUser().getUsername())
                 .sign(Algorithm.HMAC512(JwtProperties.SECRET));
 
-        Member byEmail = memberRepository.findByEmail(principalDetailis.getUser().getUsername());
+        Member byEmail = memberRepository.findByUsername(principalDetailis.getUser().getUsername());
 
         JwtDto jwtDto = new JwtDto().builder()
                 .jwtAccessToken(JwtProperties.TOKEN_PREFIX + jwtAccessToken)
