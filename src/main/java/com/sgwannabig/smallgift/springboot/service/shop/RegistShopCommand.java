@@ -15,6 +15,8 @@ public class RegistShopCommand {
         .shopAddress(manager.getAddress())
         .shopTelephone(manager.getBusinessTel())
         .isAllowed(true)
+        .thumbnailImage(manager.getBusinessRegistration())
+        .shopInfoImage(manager.getMailOrderSalesRegistraion())
         .manager(manager)
         .build();
   }

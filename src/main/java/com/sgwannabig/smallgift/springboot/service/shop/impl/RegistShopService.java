@@ -17,7 +17,8 @@ public class RegistShopService implements RegistShopUsecase {
 
   @Override
   public Shop apply(RegistShopCommand registShopCommand) {
-    validateExistedManager(registShopCommand.getShop().getManager());
+    Manager manager = registShopCommand.getShop().getManager();
+    validateExistedManager(manager);
     return shopRepository.save(registShopCommand.getShop());
   }
 
