@@ -29,6 +29,9 @@ public class Shop extends BaseTimeEntity {
     @JoinColumn(name = "manager_id")
     private Manager manager;
 
+    private String thumbnailImage;
+    private String shopInfoImage;
+
     //가게는 메뉴를 0 - 1 - many 가질 수 있다.
     @OneToMany(mappedBy = "shop")
     private List<Product> products = new ArrayList<Product>();
@@ -37,26 +40,6 @@ public class Shop extends BaseTimeEntity {
     //가게는 여러 리뷰를 가진다.
     @OneToMany(mappedBy = "shop")
     private List<Review> review = new ArrayList<Review>();
-
-    @Builder
-    public Shop(long id, Manager manager, List<Product> products, List<Review> review,
-        String category,
-        String shopName, String shopAddress, String shopTelephone, boolean isAllowed,
-        LocalDateTime createShopDate, String mainMenu, String businessHours, long totalLike) {
-        this.id = id;
-        this.manager = manager;
-        this.products = products;
-        this.review = review;
-        this.category = category;
-        this.shopName = shopName;
-        this.shopAddress = shopAddress;
-        this.shopTelephone = shopTelephone;
-        this.isAllowed = isAllowed;
-        this.createShopDate = createShopDate;
-        this.mainMenu = mainMenu;
-        this.businessHours = businessHours;
-        this.totalLike = totalLike;
-    }
 
     //카테고리를 저장한다.
     String category;
@@ -87,4 +70,25 @@ public class Shop extends BaseTimeEntity {
     @Column(nullable = false)
     long totalLike;
 
+    @Builder
+    public Shop(long id, Manager manager, String thumbnailImage, String shopInfoImage,
+        List<Product> products, List<Review> review, String category, String shopName,
+        String shopAddress, String shopTelephone, boolean isAllowed, LocalDateTime createShopDate,
+        String mainMenu, String businessHours, long totalLike) {
+        this.id = id;
+        this.manager = manager;
+        this.thumbnailImage = thumbnailImage;
+        this.shopInfoImage = shopInfoImage;
+        this.products = products;
+        this.review = review;
+        this.category = category;
+        this.shopName = shopName;
+        this.shopAddress = shopAddress;
+        this.shopTelephone = shopTelephone;
+        this.isAllowed = isAllowed;
+        this.createShopDate = createShopDate;
+        this.mainMenu = mainMenu;
+        this.businessHours = businessHours;
+        this.totalLike = totalLike;
+    }
 }
