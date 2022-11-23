@@ -227,6 +227,7 @@ public class ShopInfoController {
                     .shopId(shop.getId())
                     .category(shop.getCategory())
                     .shopName(shop.getShopName())
+                    .shopThumbnailImage(shop.getThumbnailImage())
                     .build();
 
             shopBestByLocateResDto.getTopShopByLocate().add(new KeyValueDto<>(i, shopInfoDto));
@@ -268,6 +269,7 @@ public class ShopInfoController {
                     .shopTelephone(shop.getShopTelephone())
                     .mainMenu(shop.getMainMenu())
                     .category(shop.getCategory())
+                    .shopThumbnailImage(shop.getThumbnailImage())
                     .build());
 
             singleResult.set(responseService.getSingleResult((shopDetailsResDto.get() == null) ? new ShopInfoDetailDto() :
