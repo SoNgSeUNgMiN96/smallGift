@@ -74,6 +74,8 @@ public class ShopInfoController {
 
                 RandomMenuDto randomMenuDto = RandomMenuDto.builder()
                         .shopName(shop.getShopName())
+                        .shopId(shop.getId())
+                        .category(shop.getCategory())
                         .discountPrice(product.getDiscountPrice())
                         .price(product.getProductPrice())
                         .discountRate(product.getDiscountPrice()/(double)product.getProductPrice())
@@ -226,6 +228,7 @@ public class ShopInfoController {
                     .shopId(shop.getId())
                     .category(shop.getCategory())
                     .shopName(shop.getShopName())
+                    .shopInfoImage(shop.getShopInfoImage())
                     .shopThumbnailImage(shop.getThumbnailImage())
                     .build();
 
@@ -268,6 +271,7 @@ public class ShopInfoController {
                     .shopTelephone(shop.getShopTelephone())
                     .mainMenu(shop.getMainMenu())
                     .category(shop.getCategory())
+                    .shopInfoImage(shop.getShopInfoImage())
                     .shopThumbnailImage(shop.getThumbnailImage())
                     .build());
 
@@ -384,6 +388,7 @@ public class ShopInfoController {
                     .shopId(shop.getId())
                     .category(shop.getCategory())
                     .shopName(shop.getShopName())
+                    .shopInfoImage(shop.getShopInfoImage())
                     .shopThumbnailImage(shop.getThumbnailImage())
                     .build();
 

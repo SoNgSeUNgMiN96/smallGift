@@ -8,6 +8,8 @@ import lombok.Data;
 @Data
 @Builder
 public class RandomMenuDto {
+    Long shopId;
+    String category;
     //가게이름, 상품이름, 가격, 할인가, 할인율
     @ApiModelProperty(example = "카멜로연남")
     String shopName;

@@ -41,4 +41,6 @@ public class ShopInfoDetailDto {
     String businessHours;
 
     String shopThumbnailImage;
+
+    String shopInfoImage;
 }
