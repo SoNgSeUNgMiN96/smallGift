@@ -1,4 +1,4 @@
-package com.sgwannabig.smallgift.springboot.dto.sales;
+package com.sgwannabig.smallgift.springboot.dto.product.response;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

@@ -40,4 +40,8 @@ public class S3Manager {
 
     return amazonS3Client.getUrl(bucket, filePath).toString();
   }
+
+  public void deleteFile(String url) {
+    amazonS3Client.deleteObject(bucket, url);
+  }
 }
