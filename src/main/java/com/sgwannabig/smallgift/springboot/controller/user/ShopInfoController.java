@@ -159,7 +159,6 @@ public class ShopInfoController {
                     .category(shop.getCategory())
                     .shopName(shop.getShopName())
                     .shopThumbnailImage(shop.getThumbnailImage())
-                    .products(shop.getProducts())
                     .build();
 
             shopAllByLocateResDto.getShopAllByLocate().add(new KeyValueDto<>(i, shopInfoDto));
@@ -385,7 +384,6 @@ public class ShopInfoController {
                     .shopId(shop.getId())
                     .category(shop.getCategory())
                     .shopName(shop.getShopName())
-                    .products(shop.getProducts())
                     .shopThumbnailImage(shop.getThumbnailImage())
                     .build();
 
