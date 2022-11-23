@@ -2,6 +2,8 @@ package com.sgwannabig.smallgift.springboot.controller;
 
 import com.sgwannabig.smallgift.springboot.domain.Manager;
 import com.sgwannabig.smallgift.springboot.domain.product.Product;
+import com.sgwannabig.smallgift.springboot.dto.sales.UpdateProductRequestDto;
+import com.sgwannabig.smallgift.springboot.dto.product.response.UpdateProductResponseDto;
 import com.sgwannabig.smallgift.springboot.dto.sales.*;
 import com.sgwannabig.smallgift.springboot.repository.ManagerRepository;
 import com.sgwannabig.smallgift.springboot.service.SalesManagementService;

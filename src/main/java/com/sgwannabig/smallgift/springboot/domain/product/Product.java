@@ -74,6 +74,18 @@ public class Product{
   @Column(nullable = false)
   long likeCount;
 
+  public void updateProduct(Product product) {
+    this.category = product.getCategory();
+    this.productName = product.getProductName();
+    this.productPrice = product.getProductPrice();
+    this.productContent = product.getProductContent();
+    this.startDate = product.getStartDate();
+    this.endDate = product.getEndDate();
+    this.productImage = product.getProductImage();
+    this.productStock = product.getProductStock();
+    this.productStatus = product.getProductStatus();
+  }
+
   @Builder
   public Product(Long id, Shop shop, List<Review> review, List<OrderDetails> orderDetails,
       String category, String productName, int productPrice, int discountPrice, long productStock,
