@@ -29,5 +29,5 @@ public class ShopInfoDto {
 
     String shopThumbnailImage;
 
-    List<Product> products;
+    String shopInfoImage;
 }
