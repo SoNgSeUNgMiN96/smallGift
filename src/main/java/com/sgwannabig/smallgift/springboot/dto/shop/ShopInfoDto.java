@@ -1,7 +1,9 @@
 package com.sgwannabig.smallgift.springboot.dto.shop;
 
 
+import com.sgwannabig.smallgift.springboot.domain.product.Product;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
 import lombok.Builder;
 import lombok.Data;
 
@@ -24,4 +26,8 @@ public class ShopInfoDto {
 
     @ApiModelProperty(example = "4")
     long shopId;
+
+    String shopThumbnailImage;
+
+    List<Product> products;
 }
