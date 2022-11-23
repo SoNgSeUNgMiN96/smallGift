@@ -39,4 +39,6 @@ public class ShopInfoDetailDto {
 
     @ApiModelProperty(example = "09시 - 18시")
     String businessHours;
+
+    String shopThumbnailImage;
 }
