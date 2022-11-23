@@ -86,7 +86,7 @@ public class OrderController {
             return responseService.getfailResult(401, new OrderDetailsDto());
         }
 
-        amountSum = product.get().getDiscountPrice();
+        amountSum = product.get().getProductPrice();
 
 
         // 결제를 찍고
@@ -105,7 +105,7 @@ public class OrderController {
                 .user(orderer)
                 .quantity(1)
                 .totalAmount(amountSum)
-                .productPrice(product.get().getDiscountPrice())
+                .productPrice(product.get().getProductPrice())
                 .isRefund(false)
                 .build();
 
@@ -122,7 +122,7 @@ public class OrderController {
                 .productImage(orderDetails.getProduct().getProductImage())
                 .quantity(1)
                 .totalAmount(amountSum)
-                .productPrice(product.get().getDiscountPrice())
+                .productPrice(product.get().getProductPrice())
                 .build();
     
         //couponNumber 12자리
@@ -373,8 +373,8 @@ public class OrderController {
                     .productImage(product.getProductImage())
                     .orderNumber(ecoupon.getOrderDetails().getId())
                     .orderDate(createDate.toString())
-                    .refundAmount(product.getDiscountPrice())
-                    .paidAmount(product.getDiscountPrice())
+                    .refundAmount(product.getProductPrice())
+                    .paidAmount(product.getProductPrice())
                     .build();
 
             allRefundDefailsDto.getRefundDetailsDtoList().add(refundDetailsDto);
