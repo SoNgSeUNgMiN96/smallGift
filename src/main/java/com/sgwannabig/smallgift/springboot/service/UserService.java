@@ -7,6 +7,7 @@ import com.sgwannabig.smallgift.springboot.domain.Member;
 import com.sgwannabig.smallgift.springboot.domain.OauthToken;
 import com.sgwannabig.smallgift.springboot.repository.MemberRepository;
 import java.io.IOException;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -24,6 +25,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class UserService {
 
 
@@ -128,10 +130,12 @@ public class UserService {
         // Http 요청 (POST 방식) 후, response 변수에 응답을 받음
         ResponseEntity<String> kakaoProfileResponse = rt.exchange(
                 "https://kapi.kakao.com/v2/user/me",
-                HttpMethod.GET,
+                HttpMethod.POST,
                 kakaoProfileRequest,
                 String.class
         );
+
+        log.info("FindProfile 이후 log");
 
         //(1-7)
         ObjectMapper objectMapper = new ObjectMapper();
@@ -141,6 +145,8 @@ public class UserService {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+
+        log.info("KaKaoProfile return");
 
         return kakaoProfile;
     }

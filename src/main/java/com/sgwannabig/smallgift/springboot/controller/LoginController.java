@@ -112,6 +112,7 @@ public class LoginController {
 
         refreshTokenRepository.save(new RefreshToken(jwtRefreshToken));
 
+        log.info("Controller 실행");
         MemberSocialLoginResponseDto memberSocialLoginResponseDto = new MemberSocialLoginResponseDto(member.getId(), JwtProperties.TOKEN_PREFIX + jwtAccessToken, JwtProperties.TOKEN_PREFIX + jwtRefreshToken);
 
         return responseService.getSingleResult(memberSocialLoginResponseDto);
