@@ -289,7 +289,7 @@ public class UserController {
 
             SingleResult fail = new SingleResult();
             fail.setCode(409);
-            fail.setMsg("유저 ID 가 없습니다.");
+            fail.setMsg("멤버 ID 가 없습니다.");
             return fail;
         }
 
