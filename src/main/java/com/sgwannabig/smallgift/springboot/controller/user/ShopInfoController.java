@@ -177,7 +177,11 @@ public class ShopInfoController {
         int idx =0;
         for (Product product : products) {
             if(idx++>1) break;
-            MainMenu += product.getProductName() + " ";
+            if (idx == products.size() || idx== 2) {
+                MainMenu += product.getProductName() + " ";
+            } else {
+                MainMenu += product.getProductName() + ", ";
+            }
         }
 
         if (!MainMenu.equals("")) {
