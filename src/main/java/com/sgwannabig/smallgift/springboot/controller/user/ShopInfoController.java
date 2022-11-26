@@ -185,7 +185,7 @@ public class ShopInfoController {
         }
 
         if (!MainMenu.equals("")) {
-            MainMenu += " 외";
+            MainMenu += "외";
         }
 
 
