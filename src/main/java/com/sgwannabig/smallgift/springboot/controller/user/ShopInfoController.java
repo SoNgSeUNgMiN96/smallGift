@@ -76,6 +76,7 @@ public class ShopInfoController {
                         .shopName(shop.getShopName())
                         .shopId(shop.getId())
                         .category(shop.getCategory())
+                        .productName(product.getProductName())
                         .discountPrice(product.getDiscountPrice())
                         .price(product.getProductPrice())
                         .discountRate(product.getDiscountPrice()/(double)product.getProductPrice())
@@ -155,13 +156,7 @@ public class ShopInfoController {
 
         IntStream.range(0,allShop.size()).forEach(i->{
             Shop shop = finalAllShop.get(i);
-            ShopInfoDto shopInfoDto = ShopInfoDto.builder()
-                    .address(shop.getShopAddress())
-                    .shopId(shop.getId())
-                    .category(shop.getCategory())
-                    .shopName(shop.getShopName())
-                    .shopThumbnailImage(shop.getThumbnailImage())
-                    .build();
+            ShopInfoDto shopInfoDto = getShopInfoDto(shop);
 
             shopAllByLocateResDto.getShopAllByLocate().add(new KeyValueDto<>(i, shopInfoDto));
         });
@@ -170,7 +165,37 @@ public class ShopInfoController {
         return responseService.getSingleResult(shopAllByLocateResDto);
     }
 
+    private ShopInfoDto getShopInfoDto(Shop shop) {
+        List<Product> products = shop.getProducts();
 
+        Collections.sort(products, (p1,p2)->
+            (int)p2.getLikeCount() - (int)p1.getLikeCount()
+        );
+
+        String MainMenu = "";
+
+        int idx =0;
+        for (Product product : products) {
+            if(idx++>1) break;
+            MainMenu += product.getProductName() + " ";
+        }
+
+        if (!MainMenu.equals("")) {
+            MainMenu += " 외";
+        }
+
+
+        ShopInfoDto shopInfoDto = ShopInfoDto.builder()
+                .address(shop.getShopAddress())
+                .shopId(shop.getId())
+                .category(shop.getCategory())
+                .mainMenu(MainMenu)
+                .shopName(shop.getShopName())
+                .shopThumbnailImage(shop.getThumbnailImage())
+                .shopInfoImage(shop.getShopInfoImage())
+                .build();
+        return shopInfoDto;
+    }
 
 
     //지역별 인기 상점 . 서울/경기 수정완료
@@ -223,14 +248,9 @@ public class ShopInfoController {
 
         IntStream.range(0,topShopByLocate.size()).forEach(i->{
             Shop shop = finalTopShopByLocate.get(i);
-            ShopInfoDto shopInfoDto = ShopInfoDto.builder()
-                    .address(shop.getShopAddress())
-                    .shopId(shop.getId())
-                    .category(shop.getCategory())
-                    .shopName(shop.getShopName())
-                    .shopInfoImage(shop.getShopInfoImage())
-                    .shopThumbnailImage(shop.getThumbnailImage())
-                    .build();
+
+
+            ShopInfoDto shopInfoDto = getShopInfoDto(shop);
 
             shopBestByLocateResDto.getTopShopByLocate().add(new KeyValueDto<>(i, shopInfoDto));
         });
@@ -363,7 +383,7 @@ public class ShopInfoController {
         }
 
         List<Shop> allByShopNameLike = shopRepository.findAllByShopNameLike(keyword);
-        List<Product> byProductName = productRepository.findByProductName(keyword);
+        List<Product> byProductName = productRepository.findAllByProductNameLike(keyword);
 
         HashSet<Long> shopIdSet = new HashSet<>();
 
@@ -383,14 +403,8 @@ public class ShopInfoController {
         }
 
         for (Shop shop : allByShopNameLike) {
-            ShopInfoDto shopInfoDto = ShopInfoDto.builder()
-                    .address(shop.getShopAddress())
-                    .shopId(shop.getId())
-                    .category(shop.getCategory())
-                    .shopName(shop.getShopName())
-                    .shopInfoImage(shop.getShopInfoImage())
-                    .shopThumbnailImage(shop.getThumbnailImage())
-                    .build();
+
+            ShopInfoDto shopInfoDto = getShopInfoDto(shop);
 
             shopBestByLocateResDto.getTopShopByLocate().add(new KeyValueDto<>(i++, shopInfoDto));
         }
