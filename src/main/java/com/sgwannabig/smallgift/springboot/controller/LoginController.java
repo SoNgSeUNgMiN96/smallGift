@@ -89,9 +89,33 @@ public class LoginController {
     @GetMapping("/oauth/kakao/token")
     public SingleResult<MemberSocialLoginResponseDto> getKakaoLogin(@RequestParam("code") String code,
         HttpServletRequest request) throws Exception{
+        String ip = request.getHeader("X-Forwarded-For");
+
+        if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_CLIENT_IP");
+        }
+        if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+
+        String httpProtocol = "http";
+
+        if (!ip.equals("0:0:0:0:0:0:0:1")) {
+            httpProtocol = "https";
+        }
         String callbackUrl =
-            request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
+            httpProtocol + "://" + ip + ":" + request.getRemotePort()
                 + "/auth/kakao/callback";
+
         log.info(callbackUrl);
         // 넘어온 인가 코드를 통해 access_token 발급
         OauthToken oauthToken = userService.getKakaoAccessToken(code, callbackUrl);
