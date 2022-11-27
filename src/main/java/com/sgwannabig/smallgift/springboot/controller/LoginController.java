@@ -24,6 +24,7 @@ import com.sgwannabig.smallgift.springboot.service.UserService;
 import com.sgwannabig.smallgift.springboot.service.result.Result;
 import com.sgwannabig.smallgift.springboot.service.result.SingleResult;
 import io.swagger.annotations.*;
+import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -86,10 +87,14 @@ public class LoginController {
             @ApiResponse(code = 500, message = "서버에러"),
     })
     @GetMapping("/oauth/kakao/token")
-    public SingleResult<MemberSocialLoginResponseDto> getKakaoLogin(@RequestParam("code") String code) throws Exception{
-
+    public SingleResult<MemberSocialLoginResponseDto> getKakaoLogin(@RequestParam("code") String code,
+        HttpServletRequest request) throws Exception{
+        String callbackUrl =
+            request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
+                + "/auth/kakao/callback";
+        log.info(callbackUrl);
         // 넘어온 인가 코드를 통해 access_token 발급
-        OauthToken oauthToken = userService.getKakaoAccessToken(code);
+        OauthToken oauthToken = userService.getKakaoAccessToken(code, callbackUrl);
 
         log.info("oauth : {}", oauthToken);
         //(1)
