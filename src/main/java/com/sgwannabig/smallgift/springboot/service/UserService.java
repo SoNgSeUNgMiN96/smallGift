@@ -60,6 +60,7 @@ public class UserService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", "a865c4442f6a8a5ad97d0b11c0d1e379");
+        //params.add("redirect_uri", "https://smallgift.pages.dev/auth/kakao/callback");
         params.add("redirect_uri", "http://localhost:3000/auth/kakao/callback");
         params.add("code", code);
         //params.add("client_secret", "{시크릿 키}"); // 생략 가능!
@@ -76,26 +77,8 @@ public class UserService {
                 String.class
         );
 
-        if (accessTokenResponse.getStatusCode() != HttpStatus.OK) {
-            MultiValueMap<String, String> deployParams = new LinkedMultiValueMap<>();
-            params.add("grant_type", "authorization_code");
-            params.add("client_id", "a865c4442f6a8a5ad97d0b11c0d1e379");
-            params.add("redirect_uri", "https://smallgift.pages.dev/auth/kakao/callback");
-            params.add("code", code);
-            //params.add("client_secret", "{시크릿 키}"); // 생략 가능!
+        System.out.println(accessTokenResponse.getStatusCode());
 
-            //(5)
-            HttpEntity<MultiValueMap<String, String>> deployKakaoTokenRequest =
-                new HttpEntity<>(deployParams, headers);
-
-            //(6)
-            accessTokenResponse = rt.exchange(
-                "https://kauth.kakao.com/oauth/token",
-                HttpMethod.POST,
-                deployKakaoTokenRequest,
-                String.class
-            );
-        }
         System.out.println("현재 kakaoToken Response"+accessTokenResponse.toString());
 
         //(7)
