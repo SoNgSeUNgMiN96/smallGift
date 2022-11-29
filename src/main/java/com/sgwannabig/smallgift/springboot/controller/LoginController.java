@@ -87,8 +87,6 @@ public class LoginController {
             @ApiResponse(code = 500, message = "서버에러"),
     })
     @GetMapping("/oauth/kakao/token")
-
-
     public SingleResult<MemberSocialLoginResponseDto> getKakaoLogin(@RequestParam("code") String code) throws Exception{
 
         String devUrl = "https://smallgift.pages.dev";
