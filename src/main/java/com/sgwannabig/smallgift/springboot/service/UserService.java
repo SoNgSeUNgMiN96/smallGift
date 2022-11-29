@@ -37,6 +37,8 @@ public class UserService {
 
     public OauthToken getKakaoAccessToken(String code, String redirectUrl) {
 
+        String errorCode = "";
+
         try {
             RestTemplate rt = new RestTemplate();
 
@@ -76,6 +78,9 @@ public class UserService {
                     String.class
             );
 
+            errorCode = accessTokenResponse.getBody().toString();
+
+
             System.out.println("현재 kakaoToken Response"+accessTokenResponse.toString());
 
             //(7)
@@ -84,7 +89,10 @@ public class UserService {
             oauthToken = objectMapper.readValue(accessTokenResponse.getBody(), OauthToken.class);
             return oauthToken; //(8)
         } catch (Exception e) {
-            return null;
+            OauthToken oauthToken = new OauthToken();
+            oauthToken.setAccess_token(errorCode);
+            oauthToken.setExpires_in(-1);
+            return oauthToken;
         }
         //(2)
     }
