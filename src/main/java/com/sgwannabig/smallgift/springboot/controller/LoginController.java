@@ -95,12 +95,15 @@ public class LoginController {
         // 넘어온 인가 코드를 통해 access_token 발급
         OauthToken oauthToken = userService.getKakaoAccessToken(code, localUrl);
 
-        if (oauthToken == null) {
+        if (oauthToken.getExpires_in()==-1) {
             oauthToken = userService.getKakaoAccessToken(code, devUrl);
         }
 
-        if (oauthToken == null) {
-            return responseService.getfailResult(409, null);
+        if (oauthToken.getExpires_in()==-1) {
+            SingleResult<MemberSocialLoginResponseDto> failResult = new SingleResult<>();
+            failResult.setMsg(oauthToken.toString());
+            failResult.setCode(409);
+            return failResult;
         }
 
         log.info("oauth : {}", oauthToken);
