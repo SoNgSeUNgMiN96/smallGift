@@ -87,8 +87,6 @@ public class LoginController {
             @ApiResponse(code = 500, message = "서버에러"),
     })
     @GetMapping("/oauth/kakao/token")
-
-
     public SingleResult<MemberSocialLoginResponseDto> getKakaoLogin(@RequestParam("code") String code) throws Exception{
 
         String devUrl = "https://smallgift.pages.dev";
@@ -99,6 +97,10 @@ public class LoginController {
 
         if (oauthToken == null) {
             oauthToken = userService.getKakaoAccessToken(code, devUrl);
+        }
+
+        if (oauthToken == null) {
+            return responseService.getfailResult(409, null);
         }
 
         log.info("oauth : {}", oauthToken);
