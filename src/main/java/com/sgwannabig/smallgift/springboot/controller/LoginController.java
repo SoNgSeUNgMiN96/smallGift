@@ -87,10 +87,19 @@ public class LoginController {
             @ApiResponse(code = 500, message = "서버에러"),
     })
     @GetMapping("/oauth/kakao/token")
-    public SingleResult<MemberSocialLoginResponseDto> getKakaoLogin(@RequestParam("code") String code,
-        HttpServletRequest request) throws Exception{
+
+
+    public SingleResult<MemberSocialLoginResponseDto> getKakaoLogin(@RequestParam("code") String code) throws Exception{
+
+        String devUrl = "https://smallgift.pages.dev";
+        String localUrl = "http://localhost:3000";
+
         // 넘어온 인가 코드를 통해 access_token 발급
-        OauthToken oauthToken = userService.getKakaoAccessToken(code);
+        OauthToken oauthToken = userService.getKakaoAccessToken(code, localUrl);
+
+        if (oauthToken == null) {
+            oauthToken = userService.getKakaoAccessToken(code, devUrl);
+        }
 
         log.info("oauth : {}", oauthToken);
         //(1)
