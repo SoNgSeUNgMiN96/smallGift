@@ -98,6 +98,10 @@ public class LoginController {
             oauthToken = userService.getKakaoAccessToken(code, devUrl);
         }
 
+        if (oauthToken == null) {
+            return responseService.getfailResult(409, null);
+        }
+
         log.info("oauth : {}", oauthToken);
         //(1)
         // 발급 받은 accessToken 으로 카카오 회원 정보 DB 저장
