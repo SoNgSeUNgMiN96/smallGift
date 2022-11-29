@@ -81,23 +81,20 @@ public class LoginController {
     @ApiOperation(value = "oauth/kakao/token", notes = "kakao login API입니다.")
     @ApiImplicitParams({
             @ApiImplicitParam(name="code", value ="카카오에서 발급받은 코드", required = true),
+            @ApiImplicitParam(name="redirectUrl", value ="카카오 redirectUrl", required = true),
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "성공"),
             @ApiResponse(code = 500, message = "서버에러"),
     })
     @GetMapping("/oauth/kakao/token")
-    public SingleResult<MemberSocialLoginResponseDto> getKakaoLogin(@RequestParam("code") String code) throws Exception{
+    public SingleResult<MemberSocialLoginResponseDto> getKakaoLogin(@RequestParam("code") String code, @RequestParam("redirectUrl") String redirectUrl) throws Exception{
 
-        String devUrl = "https://smallgift.pages.dev";
-        String localUrl = "http://localhost:3000";
+
 
         // 넘어온 인가 코드를 통해 access_token 발급
-        OauthToken oauthToken = userService.getKakaoAccessToken(code, localUrl);
+        OauthToken oauthToken = userService.getKakaoAccessToken(code, redirectUrl);
 
-        if (oauthToken.getExpires_in()==-1) {
-            oauthToken = userService.getKakaoAccessToken(code, devUrl);
-        }
 
         if (oauthToken.getExpires_in()==-1) {
             SingleResult<MemberSocialLoginResponseDto> failResult = new SingleResult<>();
