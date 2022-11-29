@@ -24,6 +24,7 @@ import com.sgwannabig.smallgift.springboot.service.UserService;
 import com.sgwannabig.smallgift.springboot.service.result.Result;
 import com.sgwannabig.smallgift.springboot.service.result.SingleResult;
 import io.swagger.annotations.*;
+import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -86,6 +87,8 @@ public class LoginController {
             @ApiResponse(code = 500, message = "서버에러"),
     })
     @GetMapping("/oauth/kakao/token")
+
+
     public SingleResult<MemberSocialLoginResponseDto> getKakaoLogin(@RequestParam("code") String code) throws Exception{
 
         String devUrl = "https://smallgift.pages.dev";

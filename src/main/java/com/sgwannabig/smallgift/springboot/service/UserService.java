@@ -60,7 +60,9 @@ public class UserService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", "a865c4442f6a8a5ad97d0b11c0d1e379");
+
         params.add("redirect_uri", redirectUrl+"/auth/kakao/callback");
+
         params.add("code", code);
         //params.add("client_secret", "{시크릿 키}"); // 생략 가능!
 
@@ -75,6 +77,8 @@ public class UserService {
                 kakaoTokenRequest,
                 String.class
         );
+
+        System.out.println(accessTokenResponse.getStatusCode());
 
         System.out.println("현재 kakaoToken Response"+accessTokenResponse.toString());
 
