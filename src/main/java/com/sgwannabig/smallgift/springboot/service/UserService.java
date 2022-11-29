@@ -35,7 +35,7 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public OauthToken getKakaoAccessToken(String code) {
+    public OauthToken getKakaoAccessToken(String code, String redirectUrl) {
 
         //(2)
         RestTemplate rt = new RestTemplate();
@@ -60,8 +60,9 @@ public class UserService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", "a865c4442f6a8a5ad97d0b11c0d1e379");
-        //params.add("redirect_uri", "https://smallgift.pages.dev/auth/kakao/callback");
-        params.add("redirect_uri", "http://localhost:3000/auth/kakao/callback");
+
+        params.add("redirect_uri", redirectUrl+"/auth/kakao/callback");
+
         params.add("code", code);
         //params.add("client_secret", "{시크릿 키}"); // 생략 가능!
 
