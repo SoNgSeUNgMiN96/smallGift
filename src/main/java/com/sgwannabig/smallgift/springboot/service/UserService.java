@@ -37,56 +37,56 @@ public class UserService {
 
     public OauthToken getKakaoAccessToken(String code, String redirectUrl) {
 
-        //(2)
-        RestTemplate rt = new RestTemplate();
-
-        rt.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
-        rt.setErrorHandler(new DefaultResponseErrorHandler() {
-            public boolean hasError(ClientHttpResponse response) throws IOException {
-                HttpStatus statusCode = response.getStatusCode();
-                return statusCode.series() == HttpStatus.Series.SERVER_ERROR;
-            }
-        });
-
-
-
-        //(3)
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
-
-        System.out.println("code = "+code);
-
-        //(4)
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "authorization_code");
-        params.add("client_id", "a865c4442f6a8a5ad97d0b11c0d1e379");
-        params.add("redirect_uri", redirectUrl+"/auth/kakao/callback");
-        params.add("code", code);
-        //params.add("client_secret", "{시크릿 키}"); // 생략 가능!
-
-        //(5)
-        HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =
-                new HttpEntity<>(params, headers);
-
-        //(6)
-        ResponseEntity<String> accessTokenResponse = rt.exchange(
-                "https://kauth.kakao.com/oauth/token",
-                HttpMethod.POST,
-                kakaoTokenRequest,
-                String.class
-        );
-
-        System.out.println("현재 kakaoToken Response"+accessTokenResponse.toString());
-
-        //(7)
-        ObjectMapper objectMapper = new ObjectMapper();
-        OauthToken oauthToken = null;
         try {
+            RestTemplate rt = new RestTemplate();
+
+            rt.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+            rt.setErrorHandler(new DefaultResponseErrorHandler() {
+                public boolean hasError(ClientHttpResponse response) throws IOException {
+                    HttpStatus statusCode = response.getStatusCode();
+                    return statusCode.series() == HttpStatus.Series.SERVER_ERROR;
+                }
+            });
+
+
+
+            //(3)
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
+            System.out.println("code = "+code);
+
+            //(4)
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("grant_type", "authorization_code");
+            params.add("client_id", "a865c4442f6a8a5ad97d0b11c0d1e379");
+            params.add("redirect_uri", redirectUrl+"/auth/kakao/callback");
+            params.add("code", code);
+            //params.add("client_secret", "{시크릿 키}"); // 생략 가능!
+
+            //(5)
+            HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =
+                    new HttpEntity<>(params, headers);
+
+            //(6)
+            ResponseEntity<String> accessTokenResponse = rt.exchange(
+                    "https://kauth.kakao.com/oauth/token",
+                    HttpMethod.POST,
+                    kakaoTokenRequest,
+                    String.class
+            );
+
+            System.out.println("현재 kakaoToken Response"+accessTokenResponse.toString());
+
+            //(7)
+            ObjectMapper objectMapper = new ObjectMapper();
+            OauthToken oauthToken = null;
             oauthToken = objectMapper.readValue(accessTokenResponse.getBody(), OauthToken.class);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            return oauthToken; //(8)
+        } catch (Exception e) {
+            return null;
         }
-        return oauthToken; //(8)
+        //(2)
     }
 
 
