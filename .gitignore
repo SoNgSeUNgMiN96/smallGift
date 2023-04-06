@@ -2,6 +2,7 @@
 /.gradle/
 /.idea
 /.idea/
+<<<<<<< develop
 .gradle
 **/build/
 !src/**/build/
@@ -13,3 +14,11 @@ build/
 out/
 build/
 .DS_Storen
+=======
+/build/
+/build
+build
+application-real.properties
+/src/resources/
+src/resources
+>>>>>>> master
