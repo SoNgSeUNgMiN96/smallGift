@@ -6,3 +6,5 @@
 /build
 build
 application-real.properties
+/src/resources/
+src/resources
